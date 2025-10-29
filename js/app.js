@@ -78,6 +78,17 @@ function updateUIForRole(role) {
     } else if (role === 'contador') {
         adminElements.forEach(el => el.style.display = 'none');
     }
+
+    // Update navigation visibility
+    const settingsNav = document.querySelector('[onclick="showSection(\'settings\')"]');
+    const historyNav = document.querySelector('[onclick="showSection(\'history\')"]');
+
+    if (settingsNav) {
+        settingsNav.style.display = (role === 'admin') ? '' : 'none';
+    }
+    if (historyNav) {
+        historyNav.style.display = (role === 'admin' || role === 'contador') ? '' : 'none';
+    }
 }
 
 // Data management
@@ -610,12 +621,14 @@ function updateExpenseCategorySelect() {
 }
 
 function showCategoryModal() {
+    console.log('Opening category modal');
     const modal = new bootstrap.Modal(document.getElementById('categoryModal'));
     loadCategoriesList();
     modal.show();
 }
 
 function loadCategoriesList() {
+    console.log('Loading categories list:', expenseCategories);
     const tbody = document.getElementById('categoriesTableBody');
     tbody.innerHTML = '';
 
@@ -723,6 +736,8 @@ function loadApartmentHistory() {
         return;
     }
 
+    console.log('Loading history for apartment:', apartmentId, 'Type:', historyType, 'Period:', period);
+
     const apartment = apartments.find(a => a.id == apartmentId);
     const tbody = document.getElementById('historyTableBody');
     const summaryDiv = document.getElementById('apartmentSummary');
@@ -778,6 +793,8 @@ function loadApartmentHistory() {
 
     // Sort by date (most recent first)
     transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    console.log('Found', transactions.length, 'transactions');
 
     // Update summary
     const totalPayments = transactions.filter(t => t.type === 'Pago').reduce((sum, t) => sum + t.amount, 0);
