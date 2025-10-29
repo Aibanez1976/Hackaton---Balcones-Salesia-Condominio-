@@ -192,6 +192,7 @@ function loadAllData() {
     updateDashboard();
     updateExpenseCategorySelect();
     loadHistoryApartments();
+    initializeSettings();
 }
 
 // Navigation
@@ -643,7 +644,12 @@ function updateExpenseCategorySelect() {
 
 function showCategoryModal() {
     console.log('Opening category modal');
-    const modal = new bootstrap.Modal(document.getElementById('categoryModal'));
+    const modalElement = document.getElementById('categoryModal');
+    if (!modalElement) {
+        console.error('Category modal element not found');
+        return;
+    }
+    const modal = new bootstrap.Modal(modalElement);
     loadCategoriesList();
     modal.show();
 }
@@ -731,6 +737,82 @@ function deleteCategory(index) {
     }
 }
 
+// Initialize settings section
+function initializeSettings() {
+    console.log('Initializing settings section');
+    updateSettingsCounters();
+}
+
+// Update settings counters
+function updateSettingsCounters() {
+    document.getElementById('totalApartmentsCount').textContent = apartments.length;
+    document.getElementById('totalPaymentsCount').textContent = payments.length;
+    document.getElementById('totalExpensesCount').textContent = expenses.length;
+}
+
+// Export/Import functions
+function exportData() {
+    const data = {
+        apartments: apartments,
+        payments: payments,
+        expenses: expenses,
+        expenseCategories: expenseCategories,
+        exportDate: new Date().toISOString(),
+        version: '1.0'
+    };
+
+    const dataStr = JSON.stringify(data, null, 2);
+    const dataBlob = new Blob([dataStr], {type: 'application/json'});
+
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(dataBlob);
+    link.download = `salesia-admin-backup-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    alert('Datos exportados exitosamente');
+}
+
+function importData() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+
+    input.onchange = function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+
+                    // Validate data structure
+                    if (importedData.apartments && importedData.payments && importedData.expenses) {
+                        if (confirm('¿Está seguro de importar estos datos? Se reemplazarán los datos actuales.')) {
+                            apartments = importedData.apartments || [];
+                            payments = importedData.payments || [];
+                            expenses = importedData.expenses || [];
+                            expenseCategories = importedData.expenseCategories || ['Servicios', 'Seguridad', 'Limpieza', 'Reparaciones', 'Administración', 'Seguros'];
+
+                            saveData();
+                            loadAllData();
+                            alert('Datos importados exitosamente');
+                        }
+                    } else {
+                        alert('El archivo no tiene el formato correcto');
+                    }
+                } catch (error) {
+                    alert('Error al leer el archivo: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+    };
+
+    input.click();
+}
+
 // History functions
 function loadHistoryApartments() {
     const select = document.getElementById('historyApartmentSelect');
@@ -745,6 +827,8 @@ function loadApartmentHistory() {
     const historyType = document.getElementById('historyTypeSelect').value;
     const period = document.getElementById('historyPeriodSelect').value;
 
+    console.log('Loading history for apartment:', apartmentId, 'Type:', historyType, 'Period:', period);
+
     if (!apartmentId) {
         document.getElementById('historyTableBody').innerHTML = `
             <tr>
@@ -756,8 +840,6 @@ function loadApartmentHistory() {
         document.getElementById('apartmentSummary').classList.add('d-none');
         return;
     }
-
-    console.log('Loading history for apartment:', apartmentId, 'Type:', historyType, 'Period:', period);
 
     const apartment = apartments.find(a => a.id == apartmentId);
     const tbody = document.getElementById('historyTableBody');
