@@ -197,19 +197,37 @@ function loadAllData() {
 
 // Navigation
 function showSection(sectionName) {
+    console.log('Showing section:', sectionName);
+
     // Hide all sections
     document.querySelectorAll('.section').forEach(section => {
         section.classList.add('d-none');
     });
 
     // Show selected section
-    document.getElementById(sectionName + '-section').classList.remove('d-none');
+    const targetSection = document.getElementById(sectionName + '-section');
+    if (targetSection) {
+        targetSection.classList.remove('d-none');
+        console.log('Section shown successfully:', sectionName);
+
+        // Special handling for specific sections
+        if (sectionName === 'history') {
+            loadHistoryApartments();
+        } else if (sectionName === 'settings') {
+            updateSettingsCounters();
+        }
+    } else {
+        console.error('Section not found:', sectionName + '-section');
+    }
 
     // Update active nav link
     document.querySelectorAll('.nav-link').forEach(link => {
         link.classList.remove('active');
     });
-    document.querySelector(`[onclick="showSection('${sectionName}')"]`).classList.add('active');
+    const activeLink = document.querySelector(`[onclick="showSection('${sectionName}')"]`);
+    if (activeLink) {
+        activeLink.classList.add('active');
+    }
 }
 
 // Dashboard functions
@@ -751,13 +769,28 @@ function deleteCategory(index) {
 function initializeSettings() {
     console.log('Initializing settings section');
     updateSettingsCounters();
+
+    // Force show settings section if we're on it
+    const currentSection = document.querySelector('.section:not(.d-none)');
+    if (currentSection && currentSection.id === 'settings-section') {
+        console.log('Settings section is currently visible, ensuring content is loaded');
+        updateSettingsCounters();
+    }
 }
 
 // Update settings counters
 function updateSettingsCounters() {
-    document.getElementById('totalApartmentsCount').textContent = apartments.length;
-    document.getElementById('totalPaymentsCount').textContent = payments.length;
-    document.getElementById('totalExpensesCount').textContent = expenses.length;
+    console.log('Updating settings counters - Apartments:', apartments.length, 'Payments:', payments.length, 'Expenses:', expenses.length);
+
+    const apartmentsEl = document.getElementById('totalApartmentsCount');
+    const paymentsEl = document.getElementById('totalPaymentsCount');
+    const expensesEl = document.getElementById('totalExpensesCount');
+
+    if (apartmentsEl) apartmentsEl.textContent = apartments.length;
+    if (paymentsEl) paymentsEl.textContent = payments.length;
+    if (expensesEl) expensesEl.textContent = expenses.length;
+
+    console.log('Settings counters updated successfully');
 }
 
 // Export/Import functions
@@ -825,11 +858,18 @@ function importData() {
 
 // History functions
 function loadHistoryApartments() {
+    console.log('Loading history apartments, total apartments:', apartments.length);
     const select = document.getElementById('historyApartmentSelect');
+    if (!select) {
+        console.error('History apartment select not found');
+        return;
+    }
+
     select.innerHTML = '<option value="">Seleccione un apartamento...</option>';
     apartments.forEach(apt => {
         select.innerHTML += `<option value="${apt.id}">${apt.number} - ${apt.owner.name}</option>`;
     });
+    console.log('History apartments loaded successfully');
 }
 
 function loadApartmentHistory() {
