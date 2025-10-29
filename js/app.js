@@ -237,7 +237,12 @@ function updateDashboard() {
 }
 
 function updatePortfolioChart() {
-    const ctx = document.getElementById('portfolioChart').getContext('2d');
+    const ctx = document.getElementById('portfolioChart');
+
+    // Destroy existing chart if it exists
+    if (window.portfolioChartInstance) {
+        window.portfolioChartInstance.destroy();
+    }
 
     // Calculate portfolio by age
     const currentDate = new Date();
@@ -265,7 +270,7 @@ function updatePortfolioChart() {
         }
     });
 
-    new Chart(ctx, {
+    window.portfolioChartInstance = new Chart(ctx, {
         type: 'doughnut',
         data: {
             labels: Object.keys(portfolioByAge),
@@ -286,14 +291,19 @@ function updatePortfolioChart() {
 }
 
 function updateExpensesChart() {
-    const ctx = document.getElementById('expensesChart').getContext('2d');
+    const ctx = document.getElementById('expensesChart');
+
+    // Destroy existing chart if it exists
+    if (window.expensesChartInstance) {
+        window.expensesChartInstance.destroy();
+    }
 
     const expensesByCategory = {};
     expenses.forEach(exp => {
         expensesByCategory[exp.category] = (expensesByCategory[exp.category] || 0) + exp.amount;
     });
 
-    new Chart(ctx, {
+    window.expensesChartInstance = new Chart(ctx, {
         type: 'pie',
         data: {
             labels: Object.keys(expensesByCategory),
