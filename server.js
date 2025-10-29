@@ -64,7 +64,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // Servir archivos estáticos DESPUÉS de las rutas API
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(__dirname));
 
 // Servir index.html para rutas no encontradas (SPA)
 app.get('/', (req, res) => {
@@ -147,7 +147,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Servir index.html para rutas no encontradas (SPA)
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Iniciar servidor
