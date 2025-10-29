@@ -6,6 +6,7 @@ let currentUser = null;
 let apartments = [];
 let payments = [];
 let expenses = [];
+let expenseCategories = [];
 
 // Initialize application
 document.addEventListener('DOMContentLoaded', function() {
@@ -89,12 +90,16 @@ function loadData() {
     apartments = JSON.parse(localStorage.getItem('apartments')) || [];
     payments = JSON.parse(localStorage.getItem('payments')) || [];
     expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+    expenseCategories = JSON.parse(localStorage.getItem('expenseCategories')) || [
+        'Servicios', 'Seguridad', 'Limpieza', 'Reparaciones', 'Administración', 'Seguros'
+    ];
 }
 
 function saveData() {
     localStorage.setItem('apartments', JSON.stringify(apartments));
     localStorage.setItem('payments', JSON.stringify(payments));
     localStorage.setItem('expenses', JSON.stringify(expenses));
+    localStorage.setItem('expenseCategories', JSON.stringify(expenseCategories));
 }
 
 function initializeSampleData() {
@@ -174,6 +179,8 @@ function loadAllData() {
     loadExpenses();
     loadPortfolio();
     updateDashboard();
+    updateExpenseCategorySelect();
+    loadHistoryApartments();
 }
 
 // Navigation
@@ -206,6 +213,11 @@ function updateDashboard() {
 
     const totalPortfolio = apartments.length * 1400000 * 6; // 6 months
     document.getElementById('totalPortfolio').textContent = '$' + totalPortfolio.toLocaleString();
+
+    // Update settings counters
+    document.getElementById('totalApartmentsCount').textContent = apartments.length;
+    document.getElementById('totalPaymentsCount').textContent = payments.length;
+    document.getElementById('totalExpensesCount').textContent = expenses.length;
 
     // Update charts
     updatePortfolioChart();
@@ -469,6 +481,7 @@ function showExpenseModal() {
     const modal = new bootstrap.Modal(document.getElementById('expenseModal'));
     document.getElementById('expenseForm').reset();
     document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
+    updateExpenseCategorySelect();
     modal.show();
 }
 
@@ -584,5 +597,237 @@ function deleteExpense(id) {
         loadExpenses();
         updateDashboard();
         alert('Gasto eliminado');
+    }
+}
+
+// Category management functions
+function updateExpenseCategorySelect() {
+    const select = document.getElementById('expenseCategory');
+    select.innerHTML = '';
+    expenseCategories.forEach(category => {
+        select.innerHTML += `<option value="${category}">${category}</option>`;
+    });
+}
+
+function showCategoryModal() {
+    const modal = new bootstrap.Modal(document.getElementById('categoryModal'));
+    loadCategoriesList();
+    modal.show();
+}
+
+function loadCategoriesList() {
+    const tbody = document.getElementById('categoriesTableBody');
+    tbody.innerHTML = '';
+
+    expenseCategories.forEach((category, index) => {
+        const row = `
+            <tr>
+                <td>${category}</td>
+                <td>
+                    <button class="btn btn-sm btn-warning" onclick="editCategory(${index})">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteCategory(${index})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+        tbody.innerHTML += row;
+    });
+}
+
+function addNewCategory() {
+    const categoryName = prompt('Ingrese el nombre de la nueva categoría:');
+    if (categoryName && categoryName.trim()) {
+        const trimmedName = categoryName.trim();
+        if (expenseCategories.includes(trimmedName)) {
+            alert('Esta categoría ya existe');
+            return;
+        }
+        expenseCategories.push(trimmedName);
+        saveData();
+        updateExpenseCategorySelect();
+        loadCategoriesList();
+        alert('Categoría añadida exitosamente');
+    }
+}
+
+function addNewCategoryFromExpense() {
+    const categoryName = prompt('Ingrese el nombre de la nueva categoría:');
+    if (categoryName && categoryName.trim()) {
+        const trimmedName = categoryName.trim();
+        if (expenseCategories.includes(trimmedName)) {
+            alert('Esta categoría ya existe');
+            return;
+        }
+        expenseCategories.push(trimmedName);
+        saveData();
+        updateExpenseCategorySelect();
+        // Select the newly added category
+        document.getElementById('expenseCategory').value = trimmedName;
+        alert('Categoría añadida exitosamente');
+    }
+}
+
+function editCategory(index) {
+    const currentName = expenseCategories[index];
+    const newName = prompt('Editar categoría:', currentName);
+    if (newName && newName.trim() && newName.trim() !== currentName) {
+        const trimmedName = newName.trim();
+        if (expenseCategories.includes(trimmedName)) {
+            alert('Esta categoría ya existe');
+            return;
+        }
+        expenseCategories[index] = trimmedName;
+        saveData();
+        updateExpenseCategorySelect();
+        loadCategoriesList();
+        alert('Categoría actualizada exitosamente');
+    }
+}
+
+function deleteCategory(index) {
+    if (confirm(`¿Está seguro de eliminar la categoría "${expenseCategories[index]}"?`)) {
+        expenseCategories.splice(index, 1);
+        saveData();
+        updateExpenseCategorySelect();
+        loadCategoriesList();
+        alert('Categoría eliminada exitosamente');
+    }
+}
+
+// History functions
+function loadHistoryApartments() {
+    const select = document.getElementById('historyApartmentSelect');
+    select.innerHTML = '<option value="">Seleccione un apartamento...</option>';
+    apartments.forEach(apt => {
+        select.innerHTML += `<option value="${apt.id}">${apt.number} - ${apt.owner.name}</option>`;
+    });
+}
+
+function loadApartmentHistory() {
+    const apartmentId = document.getElementById('historyApartmentSelect').value;
+    const historyType = document.getElementById('historyTypeSelect').value;
+    const period = document.getElementById('historyPeriodSelect').value;
+
+    if (!apartmentId) {
+        document.getElementById('historyTableBody').innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center text-muted">
+                    Seleccione un apartamento para ver su historial
+                </td>
+            </tr>
+        `;
+        document.getElementById('apartmentSummary').classList.add('d-none');
+        return;
+    }
+
+    const apartment = apartments.find(a => a.id == apartmentId);
+    const tbody = document.getElementById('historyTableBody');
+    const summaryDiv = document.getElementById('apartmentSummary');
+
+    // Calculate date filter
+    let dateFilter = null;
+    if (period !== 'all') {
+        const now = new Date();
+        if (period === '1month') dateFilter = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        else if (period === '3months') dateFilter = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+        else if (period === '6months') dateFilter = new Date(now.getFullYear(), now.getMonth() - 6, 1);
+    }
+
+    // Get all related transactions
+    let transactions = [];
+
+    // Add payments
+    if (historyType === 'all' || historyType === 'payments') {
+        const aptPayments = payments.filter(p => p.apartmentId == apartmentId);
+        aptPayments.forEach(payment => {
+            if (!dateFilter || new Date(payment.date) >= dateFilter) {
+                transactions.push({
+                    date: payment.date,
+                    type: 'Pago',
+                    concept: payment.concept,
+                    amount: payment.amount,
+                    status: 'Completado',
+                    details: `Método: ${payment.method}${payment.reference ? ` | Ref: ${payment.reference}` : ''}`,
+                    cssClass: 'table-success'
+                });
+            }
+        });
+    }
+
+    // Add related expenses (if apartment has expenses or general expenses)
+    if (historyType === 'all' || historyType === 'expenses') {
+        // For now, show all expenses as they might be related to the apartment
+        // In a real scenario, you might want to tag expenses by apartment
+        expenses.forEach(expense => {
+            if (!dateFilter || new Date(expense.date) >= dateFilter) {
+                transactions.push({
+                    date: expense.date,
+                    type: 'Gasto',
+                    concept: `${expense.category}: ${expense.description}`,
+                    amount: -expense.amount, // Negative for expenses
+                    status: 'Completado',
+                    details: `Proveedor: ${expense.provider}`,
+                    cssClass: 'table-danger'
+                });
+            }
+        });
+    }
+
+    // Sort by date (most recent first)
+    transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    // Update summary
+    const totalPayments = transactions.filter(t => t.type === 'Pago').reduce((sum, t) => sum + t.amount, 0);
+    const totalExpenses = Math.abs(transactions.filter(t => t.type === 'Gasto').reduce((sum, t) => sum + t.amount, 0));
+    const balance = totalPayments - totalExpenses;
+
+    summaryDiv.innerHTML = `
+        <h5><i class="fas fa-home"></i> ${apartment.number} - ${apartment.owner.name}</h5>
+        <div class="row">
+            <div class="col-md-3">
+                <strong>Pagos Totales:</strong> $${totalPayments.toLocaleString()}
+            </div>
+            <div class="col-md-3">
+                <strong>Gastos Relacionados:</strong> $${totalExpenses.toLocaleString()}
+            </div>
+            <div class="col-md-3">
+                <strong>Saldo:</strong> $${balance.toLocaleString()}
+            </div>
+            <div class="col-md-3">
+                <strong>Transacciones:</strong> ${transactions.length}
+            </div>
+        </div>
+    `;
+    summaryDiv.classList.remove('d-none');
+
+    // Update table
+    if (transactions.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center text-muted">
+                    No hay transacciones para mostrar en el período seleccionado
+                </td>
+            </tr>
+        `;
+    } else {
+        tbody.innerHTML = '';
+        transactions.forEach(transaction => {
+            const row = `
+                <tr class="${transaction.cssClass}">
+                    <td>${new Date(transaction.date).toLocaleDateString()}</td>
+                    <td><span class="badge bg-${transaction.type === 'Pago' ? 'success' : 'danger'}">${transaction.type}</span></td>
+                    <td>${transaction.concept}</td>
+                    <td class="${transaction.amount >= 0 ? 'text-success' : 'text-danger'}">
+                        ${transaction.amount >= 0 ? '+' : ''}$${Math.abs(transaction.amount).toLocaleString()}
+                    </td>
+                    <td>${transaction.status}</td>
+                    <td>${transaction.details}</td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
     }
 }
