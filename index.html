@@ -299,130 +299,130 @@
                                     </table>
                                 </div>
                             </div>
-                
-                            <!-- Settings -->
-                            <div id="settings-section" class="section d-none">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <h2><i class="fas fa-cog"></i> Configuración del Sistema</h2>
-                                        <hr>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History -->
+            <div id="history-section" class="section d-none">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h2><i class="fas fa-history"></i> Historial por Apartamento</h2>
+                        <hr>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Seleccionar Apartamento</label>
+                        <select class="form-control" id="historyApartmentSelect" onchange="loadApartmentHistory()">
+                            <option value="">Seleccione un apartamento...</option>
+                            <!-- Options will be loaded dynamically -->
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Tipo de Historial</label>
+                        <select class="form-control" id="historyTypeSelect" onchange="loadApartmentHistory()">
+                            <option value="all">Todo</option>
+                            <option value="payments">Pagos</option>
+                            <option value="expenses">Gastos Relacionados</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Período</label>
+                        <select class="form-control" id="historyPeriodSelect" onchange="loadApartmentHistory()">
+                            <option value="all">Todo el tiempo</option>
+                            <option value="6months">Últimos 6 meses</option>
+                            <option value="3months">Últimos 3 meses</option>
+                            <option value="1month">Último mes</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="apartmentSummary" class="alert alert-info d-none">
+                            <!-- Apartment summary will be shown here -->
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped" id="historyTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Fecha</th>
+                                                <th>Tipo</th>
+                                                <th>Concepto</th>
+                                                <th>Monto</th>
+                                                <th>Estado</th>
+                                                <th>Detalles</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="historyTableBody">
+                                            <tr>
+                                                <td colspan="6" class="text-center text-muted">
+                                                    Seleccione un apartamento para ver su historial
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings -->
+            <div id="settings-section" class="section d-none">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h2><i class="fas fa-cog"></i> Configuración del Sistema</h2>
+                        <hr>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-tags"></i> Categorías de Gastos</h5>
+                            </div>
+                            <div class="card-body">
+                                <p>Gestiona las categorías disponibles para clasificar gastos.</p>
+                                <button class="btn btn-primary" onclick="showCategoryModal()">
+                                    <i class="fas fa-plus"></i> Gestionar Categorías
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-database"></i> Datos del Sistema</h5>
+                            </div>
+                            <div class="card-body">
+                                <p>Información sobre los datos almacenados en el sistema.</p>
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <h4 id="totalApartmentsCount">0</h4>
+                                        <small>Apartamentos</small>
+                                    </div>
+                                    <div class="col-4">
+                                        <h4 id="totalPaymentsCount">0</h4>
+                                        <small>Pagos</small>
+                                    </div>
+                                    <div class="col-4">
+                                        <h4 id="totalExpensesCount">0</h4>
+                                        <small>Gastos</small>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="card">
-                                            <div class="card-header">
-                                                <h5><i class="fas fa-tags"></i> Categorías de Gastos</h5>
-                                            </div>
-                                            <div class="card-body">
-                                                <p>Gestiona las categorías disponibles para clasificar gastos.</p>
-                                                <button class="btn btn-primary" onclick="showCategoryModal()">
-                                                    <i class="fas fa-plus"></i> Gestionar Categorías
-                                                </button>
-                                            </div>
-                                
-                                            <!-- History -->
-                                            <div id="history-section" class="section d-none">
-                                                <div class="row">
-                                                    <div class="col-md-12">
-                                                        <h2><i class="fas fa-history"></i> Historial por Apartamento</h2>
-                                                        <hr>
-                                                    </div>
-                                                </div>
-                                                <div class="row mb-3">
-                                                    <div class="col-md-4">
-                                                        <label class="form-label">Seleccionar Apartamento</label>
-                                                        <select class="form-control" id="historyApartmentSelect" onchange="loadApartmentHistory()">
-                                                            <option value="">Seleccione un apartamento...</option>
-                                                            <!-- Options will be loaded dynamically -->
-                                                        </select>
-                                                    </div>
-                                                    <div class="col-md-4">
-                                                        <label class="form-label">Tipo de Historial</label>
-                                                        <select class="form-control" id="historyTypeSelect" onchange="loadApartmentHistory()">
-                                                            <option value="all">Todo</option>
-                                                            <option value="payments">Pagos</option>
-                                                            <option value="expenses">Gastos Relacionados</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="col-md-4">
-                                                        <label class="form-label">Período</label>
-                                                        <select class="form-control" id="historyPeriodSelect" onchange="loadApartmentHistory()">
-                                                            <option value="all">Todo el tiempo</option>
-                                                            <option value="6months">Últimos 6 meses</option>
-                                                            <option value="3months">Últimos 3 meses</option>
-                                                            <option value="1month">Último mes</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col-md-12">
-                                                        <div id="apartmentSummary" class="alert alert-info d-none">
-                                                            <!-- Apartment summary will be shown here -->
-                                                        </div>
-                                                        <div class="card">
-                                                            <div class="card-body">
-                                                                <div class="table-responsive">
-                                                                    <table class="table table-striped" id="historyTable">
-                                                                        <thead>
-                                                                            <tr>
-                                                                                <th>Fecha</th>
-                                                                                <th>Tipo</th>
-                                                                                <th>Concepto</th>
-                                                                                <th>Monto</th>
-                                                                                <th>Estado</th>
-                                                                                <th>Detalles</th>
-                                                                            </tr>
-                                                                        </thead>
-                                                                        <tbody id="historyTableBody">
-                                                                            <tr>
-                                                                                <td colspan="6" class="text-center text-muted">
-                                                                                    Seleccione un apartamento para ver su historial
-                                                                                </td>
-                                                                            </tr>
-                                                                        </tbody>
-                                                                    </table>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="card">
-                                            <div class="card-header">
-                                                <h5><i class="fas fa-database"></i> Datos del Sistema</h5>
-                                            </div>
-                                            <div class="card-body">
-                                                <p>Información sobre los datos almacenados en el sistema.</p>
-                                                <div class="row text-center">
-                                                    <div class="col-4">
-                                                        <h4 id="totalApartmentsCount">0</h4>
-                                                        <small>Apartamentos</small>
-                                                    </div>
-                                                    <div class="col-4">
-                                                        <h4 id="totalPaymentsCount">0</h4>
-                                                        <small>Pagos</small>
-                                                    </div>
-                                                    <div class="col-4">
-                                                        <h4 id="totalExpensesCount">0</h4>
-                                                        <small>Gastos</small>
-                                                    </div>
-                                                </div>
-                                                <hr>
-                                                <div class="text-center">
-                                                    <button class="btn btn-info btn-sm" onclick="exportData()">
-                                                        <i class="fas fa-download"></i> Exportar Datos
-                                                    </button>
-                                                    <button class="btn btn-warning btn-sm ms-2" onclick="importData()">
-                                                        <i class="fas fa-upload"></i> Importar Datos
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <hr>
+                                <div class="text-center">
+                                    <button class="btn btn-info btn-sm" onclick="exportData()">
+                                        <i class="fas fa-download"></i> Exportar Datos
+                                    </button>
+                                    <button class="btn btn-warning btn-sm ms-2" onclick="importData()">
+                                        <i class="fas fa-upload"></i> Importar Datos
+                                    </button>
                                 </div>
                             </div>
                         </div>
