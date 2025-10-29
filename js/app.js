@@ -116,19 +116,19 @@ function saveData() {
 function initializeSampleData() {
     // Sample apartments
     apartments = [
-        { id: 1, number: 'APT-001', tower: 'Torre A', area: 85.5, monthlyFee: 1400000, owner: { name: 'Juan García López', email: 'juan.garcia@email.com', phone: '3001234567' } },
-        { id: 2, number: 'APT-002', tower: 'Torre A', area: 85.5, monthlyFee: 1400000, owner: { name: 'María Rodríguez Pérez', email: 'maria.rodriguez@email.com', phone: '3007654321' } },
-        { id: 3, number: 'APT-003', tower: 'Torre A', area: 85.5, monthlyFee: 1400000, owner: { name: 'Carlos Martínez Silva', email: 'carlos.martinez@email.com', phone: '3009876543' } },
-        { id: 4, number: 'APT-004', tower: 'Torre A', area: 85.5, monthlyFee: 1400000, owner: { name: 'Ana López Gómez', email: 'ana.lopez@email.com', phone: '3005555555' } },
-        { id: 5, number: 'APT-005', tower: 'Torre A', area: 85.5, monthlyFee: 1400000, owner: { name: 'Pedro Sánchez Ruiz', email: 'pedro.sanchez@email.com', phone: '3004444444' } },
-        { id: 6, number: 'APT-006', tower: 'Torre A', area: 85.5, monthlyFee: 1400000, owner: { name: 'Laura Fernández Díaz', email: 'laura.fernandez@email.com', phone: '3003333333' } },
-        { id: 7, number: 'APT-007', tower: 'Torre B', area: 85.5, monthlyFee: 1400000, owner: { name: 'Roberto Díaz Moreno', email: 'roberto.diaz@email.com', phone: '3002222222' } },
-        { id: 8, number: 'APT-008', tower: 'Torre B', area: 85.5, monthlyFee: 1400000, owner: { name: 'Sofía Moreno Castro', email: 'sofia.moreno@email.com', phone: '3001111111' } },
-        { id: 9, number: 'APT-009', tower: 'Torre B', area: 85.5, monthlyFee: 1400000, owner: { name: 'Miguel Castro Ruiz', email: 'miguel.castro@email.com', phone: '3008888888' } },
-        { id: 10, number: 'APT-010', tower: 'Torre B', area: 85.5, monthlyFee: 1400000, owner: { name: 'Elena Ruiz Gómez', email: 'elena.ruiz@email.com', phone: '3007777777' } },
-        { id: 11, number: 'APT-011', tower: 'Torre B', area: 85.5, monthlyFee: 1400000, owner: { name: 'Francisco Gómez López', email: 'francisco.gomez@email.com', phone: '3006666666' } },
-        { id: 12, number: 'APT-012', tower: 'Torre B', area: 85.5, monthlyFee: 1400000, owner: { name: 'Gabriela López Martínez', email: 'gabriela.lopez@email.com', phone: '3009999999' } },
-        { id: 13, number: 'APT-013', tower: 'Torre B', area: 85.5, monthlyFee: 1400000, owner: { name: 'David Martínez Fernández', email: 'david.martinez@email.com', phone: '3005432109' } }
+        { id: 1, number: 'APT-001', tower: 'Torre A', area: 85.5, monthlyFee: 1400000, owner: { name: 'Juan García López', email: 'juan.garcia@email.com', phone: '3001234567' }, resident: { name: 'Juan García López', vehicles: 'Toyota Corolla (ABC-123)', pets: 'Perro Labrador' } },
+        { id: 2, number: 'APT-002', tower: 'Torre A', area: 85.5, monthlyFee: 1400000, owner: { name: 'María Rodríguez Pérez', email: 'maria.rodriguez@email.com', phone: '3007654321' }, resident: { name: 'María Rodríguez Pérez', vehicles: 'Mazda 3 (XYZ-456)', pets: 'Gato Siamés' } },
+        { id: 3, number: 'APT-003', tower: 'Torre A', area: 85.5, monthlyFee: 1400000, owner: { name: 'Carlos Martínez Silva', email: 'carlos.martinez@email.com', phone: '3009876543' }, resident: { name: 'Ana Silva Martínez', vehicles: 'Chevrolet Spark (DEF-789)', pets: 'Ninguna' } },
+        { id: 4, number: 'APT-004', tower: 'Torre A', area: 85.5, monthlyFee: 1400000, owner: { name: 'Ana López Gómez', email: 'ana.lopez@email.com', phone: '3005555555' }, resident: { name: 'Ana López Gómez', vehicles: 'Renault Logan (GHI-012)', pets: 'Pájaro Canario' } },
+        { id: 5, number: 'APT-005', tower: 'Torre A', area: 85.5, monthlyFee: 1400000, owner: { name: 'Pedro Sánchez Ruiz', email: 'pedro.sanchez@email.com', phone: '3004444444' }, resident: { name: 'Pedro Sánchez Ruiz', vehicles: 'Nissan Versa (JKL-345)', pets: 'Perro Beagle' } },
+        { id: 6, number: 'APT-006', tower: 'Torre A', area: 85.5, monthlyFee: 1400000, owner: { name: 'Laura Fernández Díaz', email: 'laura.fernandez@email.com', phone: '3003333333' }, resident: { name: 'Laura Fernández Díaz', vehicles: 'Hyundai i10 (MNO-678)', pets: 'Gato Persa' } },
+        { id: 7, number: 'APT-007', tower: 'Torre B', area: 85.5, monthlyFee: 1400000, owner: { name: 'Roberto Díaz Moreno', email: 'roberto.diaz@email.com', phone: '3002222222' }, resident: { name: 'Roberto Díaz Moreno', vehicles: 'Kia Rio (PQR-901)', pets: 'Ninguna' } },
+        { id: 8, number: 'APT-008', tower: 'Torre B', area: 85.5, monthlyFee: 1400000, owner: { name: 'Sofía Moreno Castro', email: 'sofia.moreno@email.com', phone: '3001111111' }, resident: { name: 'Sofía Moreno Castro', vehicles: 'Ford Fiesta (STU-234)', pets: 'Conejo Holandés' } },
+        { id: 9, number: 'APT-009', tower: 'Torre B', area: 85.5, monthlyFee: 1400000, owner: { name: 'Miguel Castro Ruiz', email: 'miguel.castro@email.com', phone: '3008888888' }, resident: { name: 'Miguel Castro Ruiz', vehicles: 'Chevrolet Aveo (VWX-567)', pets: 'Perro Pastor Alemán' } },
+        { id: 10, number: 'APT-010', tower: 'Torre B', area: 85.5, monthlyFee: 1400000, owner: { name: 'Elena Ruiz Gómez', email: 'elena.ruiz@email.com', phone: '3007777777' }, resident: { name: 'Elena Ruiz Gómez', vehicles: 'Toyota Yaris (YZA-890)', pets: 'Gato Maine Coon' } },
+        { id: 11, number: 'APT-011', tower: 'Torre B', area: 85.5, monthlyFee: 1400000, owner: { name: 'Francisco Gómez López', email: 'francisco.gomez@email.com', phone: '3006666666' }, resident: { name: 'Francisco Gómez López', vehicles: 'Honda Fit (BCD-123)', pets: 'Ninguna' } },
+        { id: 12, number: 'APT-012', tower: 'Torre B', area: 85.5, monthlyFee: 1400000, owner: { name: 'Gabriela López Martínez', email: 'gabriela.lopez@email.com', phone: '3009999999' }, resident: { name: 'Gabriela López Martínez', vehicles: 'Nissan March (EFG-456)', pets: 'Pez Betta' } },
+        { id: 13, number: 'APT-013', tower: 'Torre B', area: 85.5, monthlyFee: 1400000, owner: { name: 'David Martínez Fernández', email: 'david.martinez@email.com', phone: '3005432109' }, resident: { name: 'David Martínez Fernández', vehicles: 'Mazda 2 (HIJ-789)', pets: 'Perro Chihuahua' } }
     ];
 
     // Sample payments (6 months of realistic data)
@@ -318,6 +318,10 @@ function loadApartments() {
     tbody.innerHTML = '';
 
     apartments.forEach(apt => {
+        const residentName = apt.resident?.name || 'No especificado';
+        const vehicles = apt.resident?.vehicles || 'Ninguno';
+        const pets = apt.resident?.pets || 'Ninguna';
+
         const row = `
             <tr>
                 <td>${apt.number}</td>
@@ -325,6 +329,9 @@ function loadApartments() {
                 <td>${apt.area} m²</td>
                 <td>$${apt.monthlyFee.toLocaleString()}</td>
                 <td>${apt.owner.name}</td>
+                <td>${residentName}</td>
+                <td>${vehicles}</td>
+                <td>${pets}</td>
                 <td>
                     <button class="btn btn-sm btn-info" onclick="viewApartment(${apt.id})">
                         <i class="fas fa-eye"></i>
@@ -349,14 +356,17 @@ function showApartmentModal(apartment = null) {
     const form = document.getElementById('apartmentForm');
 
     if (apartment) {
-        document.getElementById('apartmentModalTitle').textContent = 'Editar Apartamento';
+        document.getElementById('apartmentModalTitle').textContent = 'Editar Censo del Apartamento';
         document.getElementById('apartmentNumber').value = apartment.number;
         document.getElementById('apartmentTower').value = apartment.tower;
         document.getElementById('apartmentArea').value = apartment.area;
         document.getElementById('apartmentFee').value = apartment.monthlyFee;
         document.getElementById('ownerName').value = apartment.owner.name;
+        document.getElementById('residentName').value = apartment.resident?.name || '';
         document.getElementById('ownerEmail').value = apartment.owner.email;
         document.getElementById('ownerPhone').value = apartment.owner.phone;
+        document.getElementById('vehicles').value = apartment.resident?.vehicles || '';
+        document.getElementById('pets').value = apartment.resident?.pets || '';
     } else {
         document.getElementById('apartmentModalTitle').textContent = 'Nuevo Apartamento';
         form.reset();
@@ -375,6 +385,11 @@ function saveApartment() {
             name: document.getElementById('ownerName').value,
             email: document.getElementById('ownerEmail').value,
             phone: document.getElementById('ownerPhone').value
+        },
+        resident: {
+            name: document.getElementById('residentName').value,
+            vehicles: document.getElementById('vehicles').value,
+            pets: document.getElementById('pets').value
         }
     };
 
@@ -389,9 +404,10 @@ function saveApartment() {
 
     saveData();
     loadApartments();
+    loadHistoryApartments(); // Update history dropdown
     bootstrap.Modal.getInstance(document.getElementById('apartmentModal')).hide();
 
-    alert('Apartamento guardado exitosamente');
+    alert('Censo del apartamento guardado exitosamente');
 }
 
 // Payments functions
@@ -563,7 +579,12 @@ function generateTopDelinquentsReport() {
 function viewApartment(id) {
     const apt = apartments.find(a => a.id === id);
     if (apt) {
-        alert(`Detalles del Apartamento ${apt.number}:\n\nPropietario: ${apt.owner.name}\nEmail: ${apt.owner.email}\nTeléfono: ${apt.owner.phone}\nÁrea: ${apt.area} m²\nCuota: $${apt.monthlyFee.toLocaleString()}`);
+        const residentInfo = apt.resident ? `
+Residente: ${apt.resident.name}
+Vehículos: ${apt.resident.vehicles || 'Ninguno'}
+Mascotas: ${apt.resident.pets || 'Ninguna'}` : 'No hay información de residente';
+
+        alert(`Censo del Apartamento ${apt.number}:\n\nPropietario: ${apt.owner.name}\nEmail: ${apt.owner.email}\nTeléfono: ${apt.owner.phone}\n\n${residentInfo}\n\nÁrea: ${apt.area} m²\nCuota Mensual: $${apt.monthlyFee.toLocaleString()}`);
     }
 }
 

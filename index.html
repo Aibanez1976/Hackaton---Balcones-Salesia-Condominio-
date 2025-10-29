@@ -63,7 +63,7 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#" onclick="showSection('apartments')">
-                                <i class="fas fa-home"></i> Apartamentos
+                                <i class="fas fa-home"></i> Censo
                             </a>
                         </li>
                         <li class="nav-item">
@@ -186,8 +186,8 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="d-flex justify-content-between align-items-center">
-                            <h2><i class="fas fa-home"></i> Gestión de Apartamentos</h2>
-                            <button class="btn btn-primary" onclick="showApartmentModal()">
+                            <h2><i class="fas fa-home"></i> Gestión del Censo de Residentes</h2>
+                            <button class="btn btn-primary admin-only" onclick="showApartmentModal()">
                                 <i class="fas fa-plus"></i> Nuevo Apartamento
                             </button>
                         </div>
@@ -207,6 +207,9 @@
                                                 <th>Área (m²)</th>
                                                 <th>Cuota Mensual</th>
                                                 <th>Propietario</th>
+                                                <th>Residente</th>
+                                                <th>Vehículos</th>
+                                                <th>Mascotas</th>
                                                 <th>Acciones</th>
                                             </tr>
                                         </thead>
@@ -542,9 +545,19 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Nombre del Propietario</label>
-                            <input type="text" class="form-control" id="ownerName" required>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Nombre del Propietario</label>
+                                    <input type="text" class="form-control" id="ownerName" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Nombre del Residente</label>
+                                    <input type="text" class="form-control" id="residentName">
+                                </div>
+                            </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6">
@@ -557,6 +570,20 @@
                                 <div class="mb-3">
                                     <label class="form-label">Teléfono</label>
                                     <input type="tel" class="form-control" id="ownerPhone">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Vehículos</label>
+                                    <input type="text" class="form-control" id="vehicles" placeholder="Ej: Toyota Corolla (ABC-123), Mazda 3 (XYZ-456)">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Mascotas</label>
+                                    <input type="text" class="form-control" id="pets" placeholder="Ej: Perro Labrador, Gato Siamés">
                                 </div>
                             </div>
                         </div>
