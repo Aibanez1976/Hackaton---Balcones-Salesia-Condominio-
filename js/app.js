@@ -1,1313 +1,588 @@
-<<<<<<< HEAD
+// SalesiaAdmin Pro - Frontend Application
+// GitHub Pages compatible version with localStorage
+
 // Global variables
-let token = null;
 let currentUser = null;
-let portfolioChart = null;
-let expensesChart = null;
+let apartments = [];
+let payments = [];
+let expenses = [];
 
-const API_BASE = '/api';
-
-// Initialize app
+// Initialize application
 document.addEventListener('DOMContentLoaded', function() {
-    const savedToken = localStorage.getItem('token');
-    if (savedToken) {
-        token = savedToken;
-        currentUser = JSON.parse(localStorage.getItem('user'));
-        showMainApp();
-        loadDashboard();
-    }
-
-    // Login form
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-        loginForm.addEventListener('submit', handleLogin);
-    }
-    
-    const paymentForm = document.getElementById('paymentForm');
-    if (paymentForm) {
-        paymentForm.addEventListener('submit', handlePaymentSubmit);
-    }
-    
-    const expenseForm = document.getElementById('expenseForm');
-    if (expenseForm) {
-        expenseForm.addEventListener('submit', handleExpenseSubmit);
-    }
+    initializeApp();
 });
 
-// Login handler
+function initializeApp() {
+    loadData();
+    setupEventListeners();
+    showSection('dashboard');
+    updateDashboard();
+}
+
+// Setup event listeners
+function setupEventListeners() {
+    // Login form
+    document.getElementById('loginForm').addEventListener('submit', handleLogin);
+
+    // Modal forms
+    document.getElementById('apartmentForm').addEventListener('submit', (e) => e.preventDefault());
+    document.getElementById('paymentForm').addEventListener('submit', (e) => e.preventDefault());
+    document.getElementById('expenseForm').addEventListener('submit', (e) => e.preventDefault());
+}
+
+// Authentication
 function handleLogin(e) {
     e.preventDefault();
+
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    const loginBtn = e.target.querySelector('button[type="submit"]');
-    
-    // Show loading state
-    loginBtn.disabled = true;
-    loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
 
-    console.log('Sending login request for:', email);
+    const users = [
+        { email: 'admin@salesia.com', password: 'Admin123!', name: 'Administrador', role: 'admin' },
+        { email: 'contador@salesia.com', password: 'Contador123!', name: 'Contador', role: 'contador' },
+        { email: 'consulta@salesia.com', password: 'Consulta123!', name: 'Consulta', role: 'consulta' }
+    ];
 
-    fetch(API_BASE + '/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email, password: password })
-    })
-    .then(function(response) {
-        console.log('Response status:', response.status);
-        if (!response.ok) {
-            return response.json().then(function(errorData) {
-                throw new Error(errorData.error || 'Credenciales inválidas');
-            });
-        }
-        return response.json();
-    })
-    .then(function(data) {
-        console.log('Login successful:', data);
-        
-        token = data.token;
-        currentUser = data.user;
+    const user = users.find(u => u.email === email && u.password === password);
 
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(currentUser));
-
-        showMainApp();
-        loadDashboard();
-    })
-    .catch(function(error) {
-        console.error('Login error:', error);
-        alert('Error: ' + error.message);
-        loginBtn.disabled = false;
-        loginBtn.innerHTML = 'Ingresar';
-    });
+    if (user) {
+        currentUser = user;
+        document.getElementById('loginModal').classList.add('d-none');
+        document.getElementById('app').classList.remove('d-none');
+        document.getElementById('userName').textContent = user.name;
+        updateUIForRole(user.role);
+        loadAllData();
+    } else {
+        document.getElementById('loginError').classList.remove('d-none');
+        document.getElementById('loginError').textContent = 'Credenciales incorrectas';
+    }
 }
 
-// Logout
 function logout() {
-    token = null;
     currentUser = null;
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    document.getElementById('loginScreen').style.display = 'block';
-    document.getElementById('mainApp').style.display = 'none';
+    document.getElementById('app').classList.add('d-none');
+    document.getElementById('loginModal').classList.remove('d-none');
     document.getElementById('loginForm').reset();
+    document.getElementById('loginError').classList.add('d-none');
 }
 
-// Show main app
-function showMainApp() {
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('mainApp').style.display = 'block';
+function updateUIForRole(role) {
+    // Hide/show elements based on role
+    const adminElements = document.querySelectorAll('.admin-only');
+    const contadorElements = document.querySelectorAll('.contador-only');
+
+    if (role === 'consulta') {
+        adminElements.forEach(el => el.style.display = 'none');
+        contadorElements.forEach(el => el.style.display = 'none');
+    } else if (role === 'contador') {
+        adminElements.forEach(el => el.style.display = 'none');
+    }
+}
+
+// Data management
+function loadData() {
+    // Load sample data if not exists
+    if (!localStorage.getItem('apartments')) {
+        initializeSampleData();
+    }
+
+    apartments = JSON.parse(localStorage.getItem('apartments')) || [];
+    payments = JSON.parse(localStorage.getItem('payments')) || [];
+    expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+}
+
+function saveData() {
+    localStorage.setItem('apartments', JSON.stringify(apartments));
+    localStorage.setItem('payments', JSON.stringify(payments));
+    localStorage.setItem('expenses', JSON.stringify(expenses));
+}
+
+function initializeSampleData() {
+    // Sample apartments
+    apartments = [
+        { id: 1, number: 'APT-001', tower: 'Torre A', area: 85.5, monthlyFee: 1400000, owner: { name: 'Juan García López', email: 'juan.garcia@email.com', phone: '3001234567' } },
+        { id: 2, number: 'APT-002', tower: 'Torre A', area: 85.5, monthlyFee: 1400000, owner: { name: 'María Rodríguez Pérez', email: 'maria.rodriguez@email.com', phone: '3007654321' } },
+        { id: 3, number: 'APT-003', tower: 'Torre A', area: 85.5, monthlyFee: 1400000, owner: { name: 'Carlos Martínez Silva', email: 'carlos.martinez@email.com', phone: '3009876543' } },
+        { id: 4, number: 'APT-004', tower: 'Torre A', area: 85.5, monthlyFee: 1400000, owner: { name: 'Ana López Gómez', email: 'ana.lopez@email.com', phone: '3005555555' } },
+        { id: 5, number: 'APT-005', tower: 'Torre A', area: 85.5, monthlyFee: 1400000, owner: { name: 'Pedro Sánchez Ruiz', email: 'pedro.sanchez@email.com', phone: '3004444444' } },
+        { id: 6, number: 'APT-006', tower: 'Torre A', area: 85.5, monthlyFee: 1400000, owner: { name: 'Laura Fernández Díaz', email: 'laura.fernandez@email.com', phone: '3003333333' } },
+        { id: 7, number: 'APT-007', tower: 'Torre B', area: 85.5, monthlyFee: 1400000, owner: { name: 'Roberto Díaz Moreno', email: 'roberto.diaz@email.com', phone: '3002222222' } },
+        { id: 8, number: 'APT-008', tower: 'Torre B', area: 85.5, monthlyFee: 1400000, owner: { name: 'Sofía Moreno Castro', email: 'sofia.moreno@email.com', phone: '3001111111' } },
+        { id: 9, number: 'APT-009', tower: 'Torre B', area: 85.5, monthlyFee: 1400000, owner: { name: 'Miguel Castro Ruiz', email: 'miguel.castro@email.com', phone: '3008888888' } },
+        { id: 10, number: 'APT-010', tower: 'Torre B', area: 85.5, monthlyFee: 1400000, owner: { name: 'Elena Ruiz Gómez', email: 'elena.ruiz@email.com', phone: '3007777777' } },
+        { id: 11, number: 'APT-011', tower: 'Torre B', area: 85.5, monthlyFee: 1400000, owner: { name: 'Francisco Gómez López', email: 'francisco.gomez@email.com', phone: '3006666666' } },
+        { id: 12, number: 'APT-012', tower: 'Torre B', area: 85.5, monthlyFee: 1400000, owner: { name: 'Gabriela López Martínez', email: 'gabriela.lopez@email.com', phone: '3009999999' } },
+        { id: 13, number: 'APT-013', tower: 'Torre B', area: 85.5, monthlyFee: 1400000, owner: { name: 'David Martínez Fernández', email: 'david.martinez@email.com', phone: '3005432109' } }
+    ];
+
+    // Sample payments (6 months of realistic data)
+    payments = [];
+    const paymentMethods = ['Efectivo', 'Transferencia', 'Cheque', 'Tarjeta'];
+    const today = new Date();
+
+    apartments.forEach(apt => {
+        for (let month = 0; month < 6; month++) {
+            const paymentDate = new Date(today.getFullYear(), today.getMonth() - month, 15);
+            let shouldPay = false;
+
+            // Realistic payment patterns
+            if (apt.id <= 9) {
+                // Apartments 1-9: Always pay (100%)
+                shouldPay = true;
+            } else if (apt.id <= 11) {
+                // Apartments 10-11: Pay 70% of the time
+                shouldPay = Math.random() > 0.3;
+            } else {
+                // Apartments 12-13: Pay 40% of the time
+                shouldPay = Math.random() > 0.6;
+            }
+
+            if (shouldPay) {
+                payments.push({
+                    id: payments.length + 1,
+                    apartmentId: apt.id,
+                    amount: apt.monthlyFee,
+                    date: paymentDate.toISOString().split('T')[0],
+                    concept: 'Cuota ordinaria',
+                    method: paymentMethods[Math.floor(Math.random() * paymentMethods.length)],
+                    reference: `REF-${apt.id}-${month}-${Math.floor(Math.random() * 10000)}`
+                });
+            }
+        }
+    });
+
+    // Sample expenses
+    expenses = [
+        { id: 1, category: 'Servicios', amount: 2500000, date: '2025-10-01', description: 'Pago servicios públicos octubre', provider: 'Empresa de Servicios' },
+        { id: 2, category: 'Seguridad', amount: 1500000, date: '2025-10-01', description: 'Servicios de seguridad octubre', provider: 'Empresa de Seguridad' },
+        { id: 3, category: 'Limpieza', amount: 800000, date: '2025-10-01', description: 'Limpieza áreas comunes octubre', provider: 'Servicio de Limpieza' },
+        { id: 4, category: 'Reparaciones', amount: 500000, date: '2025-10-05', description: 'Reparación ascensor', provider: 'Técnicos Especializados' },
+        { id: 5, category: 'Administración', amount: 300000, date: '2025-10-01', description: 'Suministros administrativos', provider: 'Proveedor General' },
+        { id: 6, category: 'Seguros', amount: 5000000, date: '2025-10-01', description: 'Póliza de seguros anual', provider: 'Compañía de Seguros' },
+        { id: 7, category: 'Servicios', amount: 2500000, date: '2025-09-01', description: 'Pago servicios públicos septiembre', provider: 'Empresa de Servicios' },
+        { id: 8, category: 'Seguridad', amount: 1500000, date: '2025-09-01', description: 'Servicios de seguridad septiembre', provider: 'Empresa de Seguridad' },
+        { id: 9, category: 'Limpieza', amount: 800000, date: '2025-09-01', description: 'Limpieza áreas comunes septiembre', provider: 'Servicio de Limpieza' },
+        { id: 10, category: 'Reparaciones', amount: 300000, date: '2025-09-10', description: 'Mantenimiento general', provider: 'Técnicos Especializados' }
+    ];
+
+    saveData();
+}
+
+function loadAllData() {
+    loadApartments();
+    loadPayments();
+    loadExpenses();
+    loadPortfolio();
+    updateDashboard();
 }
 
 // Navigation
-function showDashboard() {
-    hideAllViews();
-    document.getElementById('dashboardView').style.display = 'block';
-    loadDashboard();
+function showSection(sectionName) {
+    // Hide all sections
+    document.querySelectorAll('.section').forEach(section => {
+        section.classList.add('d-none');
+    });
+
+    // Show selected section
+    document.getElementById(sectionName + '-section').classList.remove('d-none');
+
+    // Update active nav link
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('active');
+    });
+    document.querySelector(`[onclick="showSection('${sectionName}')"]`).classList.add('active');
 }
 
-function showApartments() {
-    hideAllViews();
-    document.getElementById('apartmentsView').style.display = 'block';
-    loadApartments();
+// Dashboard functions
+function updateDashboard() {
+    // Update KPIs
+    document.getElementById('totalApartments').textContent = apartments.length;
+
+    const totalPayments = payments.reduce((sum, p) => sum + p.amount, 0);
+    document.getElementById('totalPayments').textContent = '$' + totalPayments.toLocaleString();
+
+    const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
+    document.getElementById('totalExpenses').textContent = '$' + totalExpenses.toLocaleString();
+
+    const totalPortfolio = apartments.length * 1400000 * 6; // 6 months
+    document.getElementById('totalPortfolio').textContent = '$' + totalPortfolio.toLocaleString();
+
+    // Update charts
+    updatePortfolioChart();
+    updateExpensesChart();
 }
 
-function showPortfolio() {
-    hideAllViews();
-    document.getElementById('portfolioView').style.display = 'block';
-    loadPortfolio();
-}
+function updatePortfolioChart() {
+    const ctx = document.getElementById('portfolioChart').getContext('2d');
 
-function showPayments() {
-    hideAllViews();
-    document.getElementById('paymentsView').style.display = 'block';
-    loadPayments();
-}
-
-function showExpenses() {
-    hideAllViews();
-    document.getElementById('expensesView').style.display = 'block';
-    loadExpenses();
-}
-
-function showReports() {
-    hideAllViews();
-    document.getElementById('reportsView').style.display = 'block';
-
-function showReconciliation() {
-    hideAllViews();
-    document.getElementById('reconciliationView').style.display = 'block';
-    loadReconciliations();
-}
-
-function showAudit() {
-    hideAllViews();
-    document.getElementById('auditView').style.display = 'block';
-    loadAuditLogs();
-}
-
-}
-
-function hideAllViews() {
-    var views = document.querySelectorAll('.view-section');
-    for (var i = 0; i < views.length; i++) {
-        views[i].style.display = 'none';
-    }
-}
-
-// API calls
-function apiCall(endpoint, method, body, callback) {
-    method = method || 'GET';
-    
-    var options = {
-        method: method,
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token
-        }
+    // Calculate portfolio by age
+    const currentDate = new Date();
+    const portfolioByAge = {
+        'Al día': 0,
+        '1-30 días': 0,
+        '31-60 días': 0,
+        '61-90 días': 0,
+        '90+ días': 0
     };
 
-    if (body) {
-        options.body = JSON.stringify(body);
-    }
+    apartments.forEach(apt => {
+        const aptPayments = payments.filter(p => p.apartmentId === apt.id);
+        const lastPayment = aptPayments.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
 
-    fetch(API_BASE + endpoint, options)
-        .then(function(response) {
-            if (!response.ok) {
-                throw new Error('API Error');
-            }
-            return response.json();
-        })
-        .then(function(data) {
-            callback(null, data);
-        })
-        .catch(function(error) {
-            console.error('API Error:', error);
-            callback(error, null);
-        });
-}
-
-// Dashboard
-function loadDashboard() {
-    apiCall('/reports/dashboard', 'GET', null, function(err, data) {
-        if (err) {
-            console.error('Error loading dashboard:', err);
-            return;
+        if (lastPayment) {
+            const daysSincePayment = Math.floor((currentDate - new Date(lastPayment.date)) / (1000 * 60 * 60 * 24));
+            if (daysSincePayment <= 30) portfolioByAge['Al día']++;
+            else if (daysSincePayment <= 60) portfolioByAge['1-30 días']++;
+            else if (daysSincePayment <= 90) portfolioByAge['31-60 días']++;
+            else if (daysSincePayment <= 120) portfolioByAge['61-90 días']++;
+            else portfolioByAge['90+ días']++;
+        } else {
+            portfolioByAge['90+ días']++;
         }
+    });
 
-        var summary = data.summary[0];
-
-        document.getElementById('totalApartments').textContent = summary.total_apartments;
-        document.getElementById('totalPortfolio').textContent = 
-            '$' + (summary.total_monthly_fee * 6).toLocaleString('es-CO');
-        document.getElementById('totalPayments').textContent = 
-            '$' + summary.total_paid_6months.toLocaleString('es-CO');
-        document.getElementById('totalExpenses').textContent = 
-            '$' + summary.total_expenses_6months.toLocaleString('es-CO');
-
-        // Portfolio chart
-        var portfolioData = data.portfolio;
-        var portfolioCtx = document.getElementById('portfolioChart');
-        if (portfolioCtx) {
-            portfolioCtx = portfolioCtx.getContext('2d');
-            
-            if (portfolioChart) portfolioChart.destroy();
-            portfolioChart = new Chart(portfolioCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: portfolioData.map(function(p) { return p.age_category + ' días'; }),
-                    datasets: [{
-                        data: portfolioData.map(function(p) { return p.amount || 0; }),
-                        backgroundColor: ['#198754', '#ffc107', '#fd7e14', '#dc3545']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: { position: 'bottom' }
-                    }
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(portfolioByAge),
+            datasets: [{
+                data: Object.values(portfolioByAge),
+                backgroundColor: ['#28a745', '#ffc107', '#fd7e14', '#dc3545', '#6c757d']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
                 }
-            });
+            }
         }
-
-        // Expenses chart
-        apiCall('/expenses/by-category/summary', 'GET', null, function(err2, expensesData) {
-            if (err2) {
-                console.error('Error loading expenses:', err2);
-                return;
-            }
-
-            var expensesCtx = document.getElementById('expensesChart');
-            if (expensesCtx) {
-                expensesCtx = expensesCtx.getContext('2d');
-                
-                if (expensesChart) expensesChart.destroy();
-                expensesChart = new Chart(expensesCtx, {
-                    type: 'pie',
-                    data: {
-                        labels: expensesData.map(function(e) { return e.category; }),
-                        datasets: [{
-                            data: expensesData.map(function(e) { return e.total_amount; }),
-                            backgroundColor: [
-                                '#0d6efd', '#6c757d', '#198754', '#ffc107', '#fd7e14', '#dc3545'
-                            ]
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        plugins: {
-                            legend: { position: 'bottom' }
-                        }
-                    }
-                });
-            }
-        });
     });
 }
 
-// Apartments
+function updateExpensesChart() {
+    const ctx = document.getElementById('expensesChart').getContext('2d');
+
+    const expensesByCategory = {};
+    expenses.forEach(exp => {
+        expensesByCategory[exp.category] = (expensesByCategory[exp.category] || 0) + exp.amount;
+    });
+
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: Object.keys(expensesByCategory),
+            datasets: [{
+                data: Object.values(expensesByCategory),
+                backgroundColor: ['#007bff', '#28a745', '#ffc107', '#dc3545', '#6c757d', '#17a2b8']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+// Apartments functions
 function loadApartments() {
-    apiCall('/apartments', 'GET', null, function(err, apartments) {
-        if (err) {
-            console.error('Error loading apartments:', err);
-            return;
-        }
+    const tbody = document.getElementById('apartmentsTableBody');
+    tbody.innerHTML = '';
 
-        var tbody = document.getElementById('apartmentsTableBody');
-        tbody.innerHTML = '';
-
-        apartments.forEach(function(apt) {
-            tbody.innerHTML += '<tr>' +
-                '<td><strong>' + apt.number + '</strong></td>' +
-                '<td>' + (apt.tower || '-') + '</td>' +
-                '<td>' + (apt.area || '-') + ' m²</td>' +
-                '<td>$' + apt.monthly_fee.toLocaleString('es-CO') + '</td>' +
-                '<td><span class="badge badge-info">' + apt.owners_count + '</span></td>' +
-                '<td><span class="badge badge-success">' + apt.residents_count + '</span></td>' +
-                '<td><span class="badge badge-warning">' + apt.pets_count + '</span></td>' +
-                '<td>' +
-                    '<button class="btn btn-sm btn-primary" onclick="viewApartmentDetails(' + apt.id + ')">' +
-                        '<i class="fas fa-eye"></i>' +
-                    '</button>' +
-                '</td>' +
-            '</tr>';
-        });
+    apartments.forEach(apt => {
+        const row = `
+            <tr>
+                <td>${apt.number}</td>
+                <td>${apt.tower}</td>
+                <td>${apt.area} m²</td>
+                <td>$${apt.monthlyFee.toLocaleString()}</td>
+                <td>${apt.owner.name}</td>
+                <td>
+                    <button class="btn btn-sm btn-info" onclick="viewApartment(${apt.id})">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    ${currentUser?.role === 'admin' ? `
+                    <button class="btn btn-sm btn-warning" onclick="editApartment(${apt.id})">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteApartment(${apt.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    ` : ''}
+                </td>
+            </tr>
+        `;
+        tbody.innerHTML += row;
     });
 }
 
-// Portfolio
-function loadPortfolio() {
-    apiCall('/portfolio/summary', 'GET', null, function(err, data) {
-        if (err) {
-            console.error('Error loading portfolio:', err);
-            return;
-        }
+function showApartmentModal(apartment = null) {
+    const modal = new bootstrap.Modal(document.getElementById('apartmentModal'));
+    const form = document.getElementById('apartmentForm');
 
-        var tbody = document.getElementById('portfolioTableBody');
-        tbody.innerHTML = '';
+    if (apartment) {
+        document.getElementById('apartmentModalTitle').textContent = 'Editar Apartamento';
+        document.getElementById('apartmentNumber').value = apartment.number;
+        document.getElementById('apartmentTower').value = apartment.tower;
+        document.getElementById('apartmentArea').value = apartment.area;
+        document.getElementById('apartmentFee').value = apartment.monthlyFee;
+        document.getElementById('ownerName').value = apartment.owner.name;
+        document.getElementById('ownerEmail').value = apartment.owner.email;
+        document.getElementById('ownerPhone').value = apartment.owner.phone;
+    } else {
+        document.getElementById('apartmentModalTitle').textContent = 'Nuevo Apartamento';
+        form.reset();
+    }
 
-        data.portfolio.forEach(function(apt) {
-            var percentage = ((apt.total_paid / (apt.monthly_fee * 6)) * 100).toFixed(1);
-            tbody.innerHTML += '<tr>' +
-                '<td><strong>' + apt.number + '</strong></td>' +
-                '<td>$' + apt.monthly_fee.toLocaleString('es-CO') + '</td>' +
-                '<td>$' + apt.total_paid.toLocaleString('es-CO') + '</td>' +
-                '<td>$' + apt.balance_owed.toLocaleString('es-CO') + '</td>' +
-                '<td>' +
-                    '<div class="progress" style="height: 20px;">' +
-                        '<div class="progress-bar" style="width: ' + percentage + '%">' + percentage + '%</div>' +
-                    '</div>' +
-                '</td>' +
-                '<td>' + (apt.last_payment_date || 'N/A') + '</td>' +
-                '<td>' +
-                    '<button class="btn btn-sm btn-primary" onclick="viewApartmentPortfolio(' + apt.id + ')">' +
-                        '<i class="fas fa-eye"></i>' +
-                    '</button>' +
-                '</td>' +
-            '</tr>';
-        });
-    });
+    modal.show();
 }
 
-// Payments
-function loadPayments() {
-    apiCall('/payments', 'GET', null, function(err, payments) {
-        if (err) {
-            console.error('Error loading payments:', err);
-            return;
+function saveApartment() {
+    const formData = {
+        number: document.getElementById('apartmentNumber').value,
+        tower: document.getElementById('apartmentTower').value,
+        area: parseFloat(document.getElementById('apartmentArea').value),
+        monthlyFee: parseInt(document.getElementById('apartmentFee').value),
+        owner: {
+            name: document.getElementById('ownerName').value,
+            email: document.getElementById('ownerEmail').value,
+            phone: document.getElementById('ownerPhone').value
         }
-
-        var tbody = document.getElementById('paymentsTableBody');
-        tbody.innerHTML = '';
-
-        payments.forEach(function(payment) {
-            tbody.innerHTML += '<tr>' +
-                '<td><strong>' + payment.apartment_number + '</strong></td>' +
-                '<td>$' + payment.amount.toLocaleString('es-CO') + '</td>' +
-                '<td>' + payment.payment_date + '</td>' +
-                '<td>' + (payment.concept || '-') + '</td>' +
-                '<td>' + (payment.payment_method || '-') + '</td>' +
-                '<td>' + (payment.reference || '-') + '</td>' +
-            '</tr>';
-        });
-
-        // Load apartments for dropdown
-        apiCall('/apartments', 'GET', null, function(err2, apartments) {
-            if (err2) return;
-            
-            var select = document.getElementById('paymentApartment');
-            select.innerHTML = '<option value="">Seleccionar apartamento</option>';
-            apartments.forEach(function(apt) {
-                select.innerHTML += '<option value="' + apt.id + '">' + apt.number + '</option>';
-            });
-        });
-    });
-}
-
-// Expenses
-function loadExpenses() {
-    apiCall('/expenses', 'GET', null, function(err, expenses) {
-        if (err) {
-            console.error('Error loading expenses:', err);
-            return;
-        }
-
-        var tbody = document.getElementById('expensesTableBody');
-        tbody.innerHTML = '';
-
-        expenses.forEach(function(expense) {
-            tbody.innerHTML += '<tr>' +
-                '<td><strong>' + expense.category_name + '</strong></td>' +
-                '<td>$' + expense.amount.toLocaleString('es-CO') + '</td>' +
-                '<td>' + expense.expense_date + '</td>' +
-                '<td>' + (expense.description || '-') + '</td>' +
-                '<td>' + (expense.provider || '-') + '</td>' +
-            '</tr>';
-        });
-
-        // Load categories for dropdown
-        apiCall('/expenses/categories/list', 'GET', null, function(err2, categories) {
-            if (err2) return;
-            
-            var select = document.getElementById('expenseCategory');
-            select.innerHTML = '<option value="">Seleccionar categoría</option>';
-            categories.forEach(function(cat) {
-                select.innerHTML += '<option value="' + cat.id + '">' + cat.name + '</option>';
-            });
-        });
-    });
-}
-
-// Form handlers
-function handlePaymentSubmit(e) {
-    e.preventDefault();
-    
-    var payment = {
-        apartment_id: parseInt(document.getElementById('paymentApartment').value),
-        amount: parseFloat(document.getElementById('paymentAmount').value),
-        payment_date: document.getElementById('paymentDate').value,
-        payment_method_id: parseInt(document.getElementById('paymentMethod').value)
     };
 
-    apiCall('/payments', 'POST', payment, function(err, result) {
-        if (err) {
-            alert('Error: ' + err.message);
-            return;
-        }
-        
-        alert('Pago registrado exitosamente');
-        document.getElementById('paymentForm').reset();
-        var modal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
-        if (modal) modal.hide();
-        loadPayments();
-        loadPortfolio();
+    // Check if apartment already exists
+    const existingIndex = apartments.findIndex(a => a.number === formData.number);
+    if (existingIndex >= 0) {
+        apartments[existingIndex] = { ...apartments[existingIndex], ...formData };
+    } else {
+        formData.id = apartments.length + 1;
+        apartments.push(formData);
+    }
+
+    saveData();
+    loadApartments();
+    bootstrap.Modal.getInstance(document.getElementById('apartmentModal')).hide();
+
+    alert('Apartamento guardado exitosamente');
+}
+
+// Payments functions
+function loadPayments() {
+    const tbody = document.getElementById('paymentsTableBody');
+    tbody.innerHTML = '';
+
+    payments.slice(-20).reverse().forEach(payment => { // Show last 20 payments
+        const apartment = apartments.find(a => a.id === payment.apartmentId);
+        const row = `
+            <tr>
+                <td>${apartment ? apartment.number : 'N/A'}</td>
+                <td>$${payment.amount.toLocaleString()}</td>
+                <td>${new Date(payment.date).toLocaleDateString()}</td>
+                <td>${payment.concept}</td>
+                <td>${payment.method}</td>
+                <td>
+                    <button class="btn btn-sm btn-info" onclick="viewPayment(${payment.id})">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    ${currentUser?.role !== 'consulta' ? `
+                    <button class="btn btn-sm btn-danger" onclick="deletePayment(${payment.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    ` : ''}
+                </td>
+            </tr>
+        `;
+        tbody.innerHTML += row;
+    });
+
+    // Update payment apartment options
+    const select = document.getElementById('paymentApartment');
+    select.innerHTML = '';
+    apartments.forEach(apt => {
+        select.innerHTML += `<option value="${apt.id}">${apt.number} - ${apt.owner.name}</option>`;
     });
 }
 
-function handleExpenseSubmit(e) {
-    e.preventDefault();
-    
-    var expense = {
-        category_id: parseInt(document.getElementById('expenseCategory').value),
-        amount: parseFloat(document.getElementById('expenseAmount').value),
-        expense_date: document.getElementById('expenseDate').value,
+function showPaymentModal() {
+    const modal = new bootstrap.Modal(document.getElementById('paymentModal'));
+    document.getElementById('paymentForm').reset();
+    document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0];
+    modal.show();
+}
+
+function savePayment() {
+    const apartmentId = parseInt(document.getElementById('paymentApartment').value);
+    const payment = {
+        id: payments.length + 1,
+        apartmentId: apartmentId,
+        amount: parseInt(document.getElementById('paymentAmount').value),
+        date: document.getElementById('paymentDate').value,
+        concept: document.getElementById('paymentConcept').value,
+        method: document.getElementById('paymentMethod').value,
+        reference: document.getElementById('paymentReference').value
+    };
+
+    payments.push(payment);
+    saveData();
+    loadPayments();
+    updateDashboard();
+    bootstrap.Modal.getInstance(document.getElementById('paymentModal')).hide();
+
+    alert('Pago registrado exitosamente');
+}
+
+// Expenses functions
+function loadExpenses() {
+    const tbody = document.getElementById('expensesTableBody');
+    tbody.innerHTML = '';
+
+    expenses.slice(-20).reverse().forEach(expense => { // Show last 20 expenses
+        const row = `
+            <tr>
+                <td>${expense.category}</td>
+                <td>$${expense.amount.toLocaleString()}</td>
+                <td>${new Date(expense.date).toLocaleDateString()}</td>
+                <td>${expense.description}</td>
+                <td>${expense.provider}</td>
+                <td>
+                    <button class="btn btn-sm btn-info" onclick="viewExpense(${expense.id})">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    ${currentUser?.role !== 'consulta' ? `
+                    <button class="btn btn-sm btn-danger" onclick="deleteExpense(${expense.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    ` : ''}
+                </td>
+            </tr>
+        `;
+        tbody.innerHTML += row;
+    });
+}
+
+function showExpenseModal() {
+    const modal = new bootstrap.Modal(document.getElementById('expenseModal'));
+    document.getElementById('expenseForm').reset();
+    document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
+    modal.show();
+}
+
+function saveExpense() {
+    const expense = {
+        id: expenses.length + 1,
+        category: document.getElementById('expenseCategory').value,
+        amount: parseInt(document.getElementById('expenseAmount').value),
+        date: document.getElementById('expenseDate').value,
         description: document.getElementById('expenseDescription').value,
         provider: document.getElementById('expenseProvider').value
     };
 
-    apiCall('/expenses', 'POST', expense, function(err, result) {
-        if (err) {
-            alert('Error: ' + err.message);
-            return;
-        }
-        
-        alert('Gasto registrado exitosamente');
-        document.getElementById('expenseForm').reset();
-        var modal = bootstrap.Modal.getInstance(document.getElementById('expenseModal'));
-        if (modal) modal.hide();
-        loadExpenses();
-        loadDashboard();
-    });
-}
-
-// Detail views
-function viewApartmentDetails(id) {
-    apiCall('/apartments/' + id, 'GET', null, function(err, apartment) {
-        if (err) {
-            alert('Error: ' + err.message);
-            return;
-        }
-        
-        alert('Apartamento: ' + apartment.number + '\nPropietarios: ' + apartment.owners.length + 
-              '\nResidentes: ' + apartment.residents.length + '\nMascotas: ' + apartment.pets.length);
-    });
-}
-
-function viewApartmentPortfolio(id) {
-    apiCall('/portfolio/apartment/' + id, 'GET', null, function(err, data) {
-        if (err) {
-            alert('Error: ' + err.message);
-            return;
-        }
-        
-        var summary = data.summary;
-        alert('Apartamento: ' + data.apartment.number + '\nPagado: $' +
-              summary.total_paid.toLocaleString('es-CO') + '\nSaldo: $' +
-              (summary.expected_payment - summary.total_paid).toLocaleString('es-CO') +
-              '\nPorcentaje: ' + summary.payment_percentage + '%');
-    });
-}
-
-// Export functions
-function exportDashboardPDF() {
-    console.log('Exporting dashboard to PDF...');
-    window.location.href = '/api/reports/dashboard/pdf';
-}
-
-function exportDashboardCSV() {
-    console.log('Exporting dashboard to CSV...');
-    window.location.href = '/api/reports/dashboard/csv';
-}
-
-function exportPortfolioCSV() {
-    console.log('Exporting portfolio to CSV...');
-    window.location.href = '/api/reports/portfolio/csv';
-}
-
-function exportPaymentsCSV() {
-    console.log('Exporting payments to CSV...');
-    window.location.href = '/api/reports/payments/csv';
-}
-
-
-// Top Delinquents
-function loadTopDelinquents() {
-    apiCall('/reports/top-delinquents', 'GET', null, function(err, data) {
-        if (err) {
-            console.error('Error loading top delinquents:', err);
-            alert('Error al cargar morosos');
-            return;
-        }
-
-        var tbody = document.getElementById('topDelinquentsBody');
-        tbody.innerHTML = '';
-
-        data.delinquents.forEach(function(delinquent) {
-            tbody.innerHTML += '<tr>' +
-                '<td><strong>' + delinquent.number + '</strong></td>' +
-                '<td>' + (delinquent.owner_name || 'N/A') + '</td>' +
-                '<td>' + (delinquent.phone || '-') + '</td>' +
-                '<td>$' + delinquent.balance.toLocaleString('es-CO') + '</td>' +
-                '<td><span class="badge bg-danger">' + delinquent.age_category + ' días</span></td>' +
-            '</tr>';
-        });
-
-        document.getElementById('topDelinquentsContainer').style.display = 'block';
-    });
-}
-
-// Reconciliation
-function loadReconciliations() {
-    apiCall('/reconciliation/list', 'GET', null, function(err, data) {
-        if (err) {
-            console.error('Error loading reconciliations:', err);
-            return;
-        }
-
-        var tbody = document.getElementById('reconciliationTableBody');
-        tbody.innerHTML = '';
-
-        data.reconciliations.forEach(function(recon) {
-            var statusBadge = recon.status === 'reconciled' ? 'bg-success' : 
-                            recon.status === 'pending' ? 'bg-warning' : 'bg-danger';
-            
-            tbody.innerHTML += '<tr>' +
-                '<td>' + recon.reconciliation_date + '</td>' +
-                '<td>$' + recon.bank_balance.toLocaleString('es-CO') + '</td>' +
-                '<td>$' + recon.system_balance.toLocaleString('es-CO') + '</td>' +
-                '<td>$' + recon.difference.toLocaleString('es-CO') + '</td>' +
-                '<td><span class="badge ' + statusBadge + '">' + recon.status + '</span></td>' +
-            '</tr>';
-        });
-    });
-}
-
-// Handle reconciliation form
-document.addEventListener('DOMContentLoaded', function() {
-    const reconciliationForm = document.getElementById('reconciliationForm');
-    if (reconciliationForm) {
-        reconciliationForm.addEventListener('submit', handleReconciliationSubmit);
-    }
-});
-
-function handleReconciliationSubmit(e) {
-    e.preventDefault();
-    
-    const formData = new FormData();
-    formData.append('reconciliationDate', document.getElementById('reconciliationDate').value);
-    formData.append('bankBalance', document.getElementById('bankBalance').value);
-    formData.append('file', document.getElementById('bankFile').files[0]);
-
-    fetch(API_BASE + '/reconciliation/upload', {
-        method: 'POST',
-        headers: {
-            'Authorization': 'Bearer ' + token
-        },
-        body: formData
-    })
-    .then(function(response) {
-        if (!response.ok) {
-            throw new Error('Error en conciliación');
-        }
-        return response.json();
-    })
-    .then(function(data) {
-        alert(data.message);
-        document.getElementById('reconciliationForm').reset();
-        loadReconciliations();
-    })
-    .catch(function(error) {
-        console.error('Error:', error);
-        alert('Error: ' + error.message);
-    });
-}
-
-// Audit Logs
-function loadAuditLogs() {
-    apiCall('/audit/logs', 'GET', null, function(err, data) {
-        if (err) {
-            console.error('Error loading audit logs:', err);
-            return;
-        }
-
-        var tbody = document.getElementById('auditTableBody');
-        tbody.innerHTML = '';
-
-        data.logs.forEach(function(log) {
-            tbody.innerHTML += '<tr>' +
-                '<td>' + log.created_at + '</td>' +
-                '<td>' + (log.user_name || 'Sistema') + '</td>' +
-                '<td><span class="badge bg-info">' + log.action + '</span></td>' +
-                '<td>' + log.model + '</td>' +
-                '<td><small>' + log.ip_address + '</small></td>' +
-            '</tr>';
-        });
-    });
-}
-
-// Backups
-function performBackup() {
-    if (!confirm('¿Realizar backup ahora?')) return;
-    
-    apiCall('/audit/backup/perform', 'POST', {}, function(err, data) {
-        if (err) {
-            alert('Error: ' + err.message);
-            return;
-        }
-        
-        alert('Backup realizado: ' + data.backup.fileName);
-        loadBackupsList();
-    });
-}
-
-function loadBackupsList() {
-    apiCall('/audit/backup/list', 'GET', null, function(err, data) {
-        if (err) {
-            console.error('Error loading backups:', err);
-            alert('Error al cargar backups');
-            return;
-        }
-
-        var backupsList = '<div class="alert alert-info"><strong>Backups Disponibles:</strong><br>';
-        data.backups.forEach(function(backup) {
-            backupsList += backup.fileName + ' (' + backup.sizeKB + ' KB) - ' + 
-                          new Date(backup.modified).toLocaleString('es-CO') + '<br>';
-        });
-        backupsList += '</div>';
-        
-        alert(backupsList);
-    });
-}
-
-function exportExpensesCSV() {
-    console.log('Exporting expenses to CSV...');
-    window.location.href = '/api/reports/expenses/csv';
-}
-=======
-// Global variables
-let token = null;
-let currentUser = null;
-let portfolioChart = null;
-let expensesChart = null;
-
-const API_BASE = '/api';
-
-// Initialize app
-document.addEventListener('DOMContentLoaded', function() {
-    const savedToken = localStorage.getItem('token');
-    if (savedToken) {
-        token = savedToken;
-        currentUser = JSON.parse(localStorage.getItem('user'));
-        showMainApp();
-        loadDashboard();
-    }
-
-    // Login form
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-        loginForm.addEventListener('submit', handleLogin);
-    }
-    
-    const paymentForm = document.getElementById('paymentForm');
-    if (paymentForm) {
-        paymentForm.addEventListener('submit', handlePaymentSubmit);
-    }
-    
-    const expenseForm = document.getElementById('expenseForm');
-    if (expenseForm) {
-        expenseForm.addEventListener('submit', handleExpenseSubmit);
-    }
-});
-
-// Login handler
-function handleLogin(e) {
-    e.preventDefault();
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const loginBtn = e.target.querySelector('button[type="submit"]');
-    
-    // Show loading state
-    loginBtn.disabled = true;
-    loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
-
-    console.log('Sending login request for:', email);
-
-    fetch(API_BASE + '/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email, password: password })
-    })
-    .then(function(response) {
-        console.log('Response status:', response.status);
-        if (!response.ok) {
-            return response.json().then(function(errorData) {
-                throw new Error(errorData.error || 'Credenciales inválidas');
-            });
-        }
-        return response.json();
-    })
-    .then(function(data) {
-        console.log('Login successful:', data);
-        
-        token = data.token;
-        currentUser = data.user;
-
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(currentUser));
-
-        showMainApp();
-        loadDashboard();
-    })
-    .catch(function(error) {
-        console.error('Login error:', error);
-        alert('Error: ' + error.message);
-        loginBtn.disabled = false;
-        loginBtn.innerHTML = 'Ingresar';
-    });
-}
-
-// Logout
-function logout() {
-    token = null;
-    currentUser = null;
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    document.getElementById('loginScreen').style.display = 'block';
-    document.getElementById('mainApp').style.display = 'none';
-    document.getElementById('loginForm').reset();
-}
-
-// Show main app
-function showMainApp() {
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('mainApp').style.display = 'block';
-}
-
-// Navigation
-function showDashboard() {
-    hideAllViews();
-    document.getElementById('dashboardView').style.display = 'block';
-    loadDashboard();
-}
-
-function showApartments() {
-    hideAllViews();
-    document.getElementById('apartmentsView').style.display = 'block';
-    loadApartments();
-}
-
-function showPortfolio() {
-    hideAllViews();
-    document.getElementById('portfolioView').style.display = 'block';
-    loadPortfolio();
-}
-
-function showPayments() {
-    hideAllViews();
-    document.getElementById('paymentsView').style.display = 'block';
-    loadPayments();
-}
-
-function showExpenses() {
-    hideAllViews();
-    document.getElementById('expensesView').style.display = 'block';
+    expenses.push(expense);
+    saveData();
     loadExpenses();
+    updateDashboard();
+    bootstrap.Modal.getInstance(document.getElementById('expenseModal')).hide();
+
+    alert('Gasto registrado exitosamente');
 }
 
-function showReports() {
-    hideAllViews();
-    document.getElementById('reportsView').style.display = 'block';
-
-function showReconciliation() {
-    hideAllViews();
-    document.getElementById('reconciliationView').style.display = 'block';
-    loadReconciliations();
-}
-
-function showAudit() {
-    hideAllViews();
-    document.getElementById('auditView').style.display = 'block';
-    loadAuditLogs();
-}
-
-}
-
-function hideAllViews() {
-    var views = document.querySelectorAll('.view-section');
-    for (var i = 0; i < views.length; i++) {
-        views[i].style.display = 'none';
-    }
-}
-
-// API calls
-function apiCall(endpoint, method, body, callback) {
-    method = method || 'GET';
-    
-    var options = {
-        method: method,
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token
-        }
-    };
-
-    if (body) {
-        options.body = JSON.stringify(body);
-    }
-
-    fetch(API_BASE + endpoint, options)
-        .then(function(response) {
-            if (!response.ok) {
-                throw new Error('API Error');
-            }
-            return response.json();
-        })
-        .then(function(data) {
-            callback(null, data);
-        })
-        .catch(function(error) {
-            console.error('API Error:', error);
-            callback(error, null);
-        });
-}
-
-// Dashboard
-function loadDashboard() {
-    apiCall('/reports/dashboard', 'GET', null, function(err, data) {
-        if (err) {
-            console.error('Error loading dashboard:', err);
-            return;
-        }
-
-        var summary = data.summary[0];
-
-        document.getElementById('totalApartments').textContent = summary.total_apartments;
-        document.getElementById('totalPortfolio').textContent = 
-            '$' + (summary.total_monthly_fee * 6).toLocaleString('es-CO');
-        document.getElementById('totalPayments').textContent = 
-            '$' + summary.total_paid_6months.toLocaleString('es-CO');
-        document.getElementById('totalExpenses').textContent = 
-            '$' + summary.total_expenses_6months.toLocaleString('es-CO');
-
-        // Portfolio chart
-        var portfolioData = data.portfolio;
-        var portfolioCtx = document.getElementById('portfolioChart');
-        if (portfolioCtx) {
-            portfolioCtx = portfolioCtx.getContext('2d');
-            
-            if (portfolioChart) portfolioChart.destroy();
-            portfolioChart = new Chart(portfolioCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: portfolioData.map(function(p) { return p.age_category + ' días'; }),
-                    datasets: [{
-                        data: portfolioData.map(function(p) { return p.amount || 0; }),
-                        backgroundColor: ['#198754', '#ffc107', '#fd7e14', '#dc3545']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: { position: 'bottom' }
-                    }
-                }
-            });
-        }
-
-        // Expenses chart
-        apiCall('/expenses/by-category/summary', 'GET', null, function(err2, expensesData) {
-            if (err2) {
-                console.error('Error loading expenses:', err2);
-                return;
-            }
-
-            var expensesCtx = document.getElementById('expensesChart');
-            if (expensesCtx) {
-                expensesCtx = expensesCtx.getContext('2d');
-                
-                if (expensesChart) expensesChart.destroy();
-                expensesChart = new Chart(expensesCtx, {
-                    type: 'pie',
-                    data: {
-                        labels: expensesData.map(function(e) { return e.category; }),
-                        datasets: [{
-                            data: expensesData.map(function(e) { return e.total_amount; }),
-                            backgroundColor: [
-                                '#0d6efd', '#6c757d', '#198754', '#ffc107', '#fd7e14', '#dc3545'
-                            ]
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        plugins: {
-                            legend: { position: 'bottom' }
-                        }
-                    }
-                });
-            }
-        });
-    });
-}
-
-// Apartments
-function loadApartments() {
-    apiCall('/apartments', 'GET', null, function(err, apartments) {
-        if (err) {
-            console.error('Error loading apartments:', err);
-            return;
-        }
-
-        var tbody = document.getElementById('apartmentsTableBody');
-        tbody.innerHTML = '';
-
-        apartments.forEach(function(apt) {
-            tbody.innerHTML += '<tr>' +
-                '<td><strong>' + apt.number + '</strong></td>' +
-                '<td>' + (apt.tower || '-') + '</td>' +
-                '<td>' + (apt.area || '-') + ' m²</td>' +
-                '<td>$' + apt.monthly_fee.toLocaleString('es-CO') + '</td>' +
-                '<td><span class="badge badge-info">' + apt.owners_count + '</span></td>' +
-                '<td><span class="badge badge-success">' + apt.residents_count + '</span></td>' +
-                '<td><span class="badge badge-warning">' + apt.pets_count + '</span></td>' +
-                '<td>' +
-                    '<button class="btn btn-sm btn-primary" onclick="viewApartmentDetails(' + apt.id + ')">' +
-                        '<i class="fas fa-eye"></i>' +
-                    '</button>' +
-                '</td>' +
-            '</tr>';
-        });
-    });
-}
-
-// Portfolio
+// Portfolio functions
 function loadPortfolio() {
-    apiCall('/portfolio/summary', 'GET', null, function(err, data) {
-        if (err) {
-            console.error('Error loading portfolio:', err);
-            return;
-        }
+    const tbody = document.getElementById('portfolioTableBody');
+    tbody.innerHTML = '';
 
-        var tbody = document.getElementById('portfolioTableBody');
-        tbody.innerHTML = '';
+    apartments.forEach(apt => {
+        const aptPayments = payments.filter(p => p.apartmentId === apt.id);
+        const totalPaid = aptPayments.reduce((sum, p) => sum + p.amount, 0);
+        const expectedPayments = 6; // 6 months
+        const expectedTotal = apt.monthlyFee * expectedPayments;
+        const percentagePaid = ((totalPaid / expectedTotal) * 100).toFixed(1);
 
-        data.portfolio.forEach(function(apt) {
-            var percentage = ((apt.total_paid / (apt.monthly_fee * 6)) * 100).toFixed(1);
-            tbody.innerHTML += '<tr>' +
-                '<td><strong>' + apt.number + '</strong></td>' +
-                '<td>$' + apt.monthly_fee.toLocaleString('es-CO') + '</td>' +
-                '<td>$' + apt.total_paid.toLocaleString('es-CO') + '</td>' +
-                '<td>$' + apt.balance_owed.toLocaleString('es-CO') + '</td>' +
-                '<td>' +
-                    '<div class="progress" style="height: 20px;">' +
-                        '<div class="progress-bar" style="width: ' + percentage + '%">' + percentage + '%</div>' +
-                    '</div>' +
-                '</td>' +
-                '<td>' + (apt.last_payment_date || 'N/A') + '</td>' +
-                '<td>' +
-                    '<button class="btn btn-sm btn-primary" onclick="viewApartmentPortfolio(' + apt.id + ')">' +
-                        '<i class="fas fa-eye"></i>' +
-                    '</button>' +
-                '</td>' +
-            '</tr>';
-        });
+        const lastPayment = aptPayments.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+        const lastPaymentDate = lastPayment ? new Date(lastPayment.date).toLocaleDateString() : 'Nunca';
+
+        const status = percentagePaid >= 80 ? 'Al día' : percentagePaid >= 50 ? 'Moroso' : 'Moroso Crítico';
+
+        const row = `
+            <tr>
+                <td>${apt.number}</td>
+                <td>${apt.owner.name}</td>
+                <td>$${(expectedTotal - totalPaid).toLocaleString()}</td>
+                <td>${lastPaymentDate}</td>
+                <td>${percentagePaid}%</td>
+                <td><span class="badge bg-${status === 'Al día' ? 'success' : status === 'Moroso' ? 'warning' : 'danger'}">${status}</span></td>
+            </tr>
+        `;
+        tbody.innerHTML += row;
     });
 }
 
-// Payments
-function loadPayments() {
-    apiCall('/payments', 'GET', null, function(err, payments) {
-        if (err) {
-            console.error('Error loading payments:', err);
-            return;
-        }
-
-        var tbody = document.getElementById('paymentsTableBody');
-        tbody.innerHTML = '';
-
-        payments.forEach(function(payment) {
-            tbody.innerHTML += '<tr>' +
-                '<td><strong>' + payment.apartment_number + '</strong></td>' +
-                '<td>$' + payment.amount.toLocaleString('es-CO') + '</td>' +
-                '<td>' + payment.payment_date + '</td>' +
-                '<td>' + (payment.concept || '-') + '</td>' +
-                '<td>' + (payment.payment_method || '-') + '</td>' +
-                '<td>' + (payment.reference || '-') + '</td>' +
-            '</tr>';
-        });
-
-        // Load apartments for dropdown
-        apiCall('/apartments', 'GET', null, function(err2, apartments) {
-            if (err2) return;
-            
-            var select = document.getElementById('paymentApartment');
-            select.innerHTML = '<option value="">Seleccionar apartamento</option>';
-            apartments.forEach(function(apt) {
-                select.innerHTML += '<option value="' + apt.id + '">' + apt.number + '</option>';
-            });
-        });
-    });
+// Report functions
+function generatePortfolioReport() {
+    alert('Generando reporte de cartera...\n\nEsta función simularía la generación de un PDF con el estado actual de la cartera.');
 }
 
-// Expenses
-function loadExpenses() {
-    apiCall('/expenses', 'GET', null, function(err, expenses) {
-        if (err) {
-            console.error('Error loading expenses:', err);
-            return;
-        }
-
-        var tbody = document.getElementById('expensesTableBody');
-        tbody.innerHTML = '';
-
-        expenses.forEach(function(expense) {
-            tbody.innerHTML += '<tr>' +
-                '<td><strong>' + expense.category_name + '</strong></td>' +
-                '<td>$' + expense.amount.toLocaleString('es-CO') + '</td>' +
-                '<td>' + expense.expense_date + '</td>' +
-                '<td>' + (expense.description || '-') + '</td>' +
-                '<td>' + (expense.provider || '-') + '</td>' +
-            '</tr>';
-        });
-
-        // Load categories for dropdown
-        apiCall('/expenses/categories/list', 'GET', null, function(err2, categories) {
-            if (err2) return;
-            
-            var select = document.getElementById('expenseCategory');
-            select.innerHTML = '<option value="">Seleccionar categoría</option>';
-            categories.forEach(function(cat) {
-                select.innerHTML += '<option value="' + cat.id + '">' + cat.name + '</option>';
-            });
-        });
-    });
+function generateCashFlowReport() {
+    alert('Generando reporte de flujo de caja...\n\nEsta función simularía la generación de un PDF con el análisis de ingresos vs egresos.');
 }
 
-// Form handlers
-function handlePaymentSubmit(e) {
-    e.preventDefault();
-    
-    var payment = {
-        apartment_id: parseInt(document.getElementById('paymentApartment').value),
-        amount: parseFloat(document.getElementById('paymentAmount').value),
-        payment_date: document.getElementById('paymentDate').value,
-        payment_method_id: parseInt(document.getElementById('paymentMethod').value)
-    };
-
-    apiCall('/payments', 'POST', payment, function(err, result) {
-        if (err) {
-            alert('Error: ' + err.message);
-            return;
-        }
-        
-        alert('Pago registrado exitosamente');
-        document.getElementById('paymentForm').reset();
-        var modal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
-        if (modal) modal.hide();
-        loadPayments();
-        loadPortfolio();
-    });
+function generateTopDelinquentsReport() {
+    alert('Generando reporte de top morosos...\n\nEsta función simularía la generación de un PDF con el ranking de propietarios morosos.');
 }
 
-function handleExpenseSubmit(e) {
-    e.preventDefault();
-    
-    var expense = {
-        category_id: parseInt(document.getElementById('expenseCategory').value),
-        amount: parseFloat(document.getElementById('expenseAmount').value),
-        expense_date: document.getElementById('expenseDate').value,
-        description: document.getElementById('expenseDescription').value,
-        provider: document.getElementById('expenseProvider').value
-    };
-
-    apiCall('/expenses', 'POST', expense, function(err, result) {
-        if (err) {
-            alert('Error: ' + err.message);
-            return;
-        }
-        
-        alert('Gasto registrado exitosamente');
-        document.getElementById('expenseForm').reset();
-        var modal = bootstrap.Modal.getInstance(document.getElementById('expenseModal'));
-        if (modal) modal.hide();
-        loadExpenses();
-        loadDashboard();
-    });
-}
-
-// Detail views
-function viewApartmentDetails(id) {
-    apiCall('/apartments/' + id, 'GET', null, function(err, apartment) {
-        if (err) {
-            alert('Error: ' + err.message);
-            return;
-        }
-        
-        alert('Apartamento: ' + apartment.number + '\nPropietarios: ' + apartment.owners.length + 
-              '\nResidentes: ' + apartment.residents.length + '\nMascotas: ' + apartment.pets.length);
-    });
-}
-
-function viewApartmentPortfolio(id) {
-    apiCall('/portfolio/apartment/' + id, 'GET', null, function(err, data) {
-        if (err) {
-            alert('Error: ' + err.message);
-            return;
-        }
-        
-        var summary = data.summary;
-        alert('Apartamento: ' + data.apartment.number + '\nPagado: $' +
-              summary.total_paid.toLocaleString('es-CO') + '\nSaldo: $' +
-              (summary.expected_payment - summary.total_paid).toLocaleString('es-CO') +
-              '\nPorcentaje: ' + summary.payment_percentage + '%');
-    });
-}
-
-// Export functions
-function exportDashboardPDF() {
-    console.log('Exporting dashboard to PDF...');
-    window.location.href = '/api/reports/dashboard/pdf';
-}
-
-function exportDashboardCSV() {
-    console.log('Exporting dashboard to CSV...');
-    window.location.href = '/api/reports/dashboard/csv';
-}
-
-function exportPortfolioCSV() {
-    console.log('Exporting portfolio to CSV...');
-    window.location.href = '/api/reports/portfolio/csv';
-}
-
-function exportPaymentsCSV() {
-    console.log('Exporting payments to CSV...');
-    window.location.href = '/api/reports/payments/csv';
-}
-
-
-// Top Delinquents
-function loadTopDelinquents() {
-    apiCall('/reports/top-delinquents', 'GET', null, function(err, data) {
-        if (err) {
-            console.error('Error loading top delinquents:', err);
-            alert('Error al cargar morosos');
-            return;
-        }
-
-        var tbody = document.getElementById('topDelinquentsBody');
-        tbody.innerHTML = '';
-
-        data.delinquents.forEach(function(delinquent) {
-            tbody.innerHTML += '<tr>' +
-                '<td><strong>' + delinquent.number + '</strong></td>' +
-                '<td>' + (delinquent.owner_name || 'N/A') + '</td>' +
-                '<td>' + (delinquent.phone || '-') + '</td>' +
-                '<td>$' + delinquent.balance.toLocaleString('es-CO') + '</td>' +
-                '<td><span class="badge bg-danger">' + delinquent.age_category + ' días</span></td>' +
-            '</tr>';
-        });
-
-        document.getElementById('topDelinquentsContainer').style.display = 'block';
-    });
-}
-
-// Reconciliation
-function loadReconciliations() {
-    apiCall('/reconciliation/list', 'GET', null, function(err, data) {
-        if (err) {
-            console.error('Error loading reconciliations:', err);
-            return;
-        }
-
-        var tbody = document.getElementById('reconciliationTableBody');
-        tbody.innerHTML = '';
-
-        data.reconciliations.forEach(function(recon) {
-            var statusBadge = recon.status === 'reconciled' ? 'bg-success' : 
-                            recon.status === 'pending' ? 'bg-warning' : 'bg-danger';
-            
-            tbody.innerHTML += '<tr>' +
-                '<td>' + recon.reconciliation_date + '</td>' +
-                '<td>$' + recon.bank_balance.toLocaleString('es-CO') + '</td>' +
-                '<td>$' + recon.system_balance.toLocaleString('es-CO') + '</td>' +
-                '<td>$' + recon.difference.toLocaleString('es-CO') + '</td>' +
-                '<td><span class="badge ' + statusBadge + '">' + recon.status + '</span></td>' +
-            '</tr>';
-        });
-    });
-}
-
-// Handle reconciliation form
-document.addEventListener('DOMContentLoaded', function() {
-    const reconciliationForm = document.getElementById('reconciliationForm');
-    if (reconciliationForm) {
-        reconciliationForm.addEventListener('submit', handleReconciliationSubmit);
+// Utility functions
+function viewApartment(id) {
+    const apt = apartments.find(a => a.id === id);
+    if (apt) {
+        alert(`Detalles del Apartamento ${apt.number}:\n\nPropietario: ${apt.owner.name}\nEmail: ${apt.owner.email}\nTeléfono: ${apt.owner.phone}\nÁrea: ${apt.area} m²\nCuota: $${apt.monthlyFee.toLocaleString()}`);
     }
-});
-
-function handleReconciliationSubmit(e) {
-    e.preventDefault();
-    
-    const formData = new FormData();
-    formData.append('reconciliationDate', document.getElementById('reconciliationDate').value);
-    formData.append('bankBalance', document.getElementById('bankBalance').value);
-    formData.append('file', document.getElementById('bankFile').files[0]);
-
-    fetch(API_BASE + '/reconciliation/upload', {
-        method: 'POST',
-        headers: {
-            'Authorization': 'Bearer ' + token
-        },
-        body: formData
-    })
-    .then(function(response) {
-        if (!response.ok) {
-            throw new Error('Error en conciliación');
-        }
-        return response.json();
-    })
-    .then(function(data) {
-        alert(data.message);
-        document.getElementById('reconciliationForm').reset();
-        loadReconciliations();
-    })
-    .catch(function(error) {
-        console.error('Error:', error);
-        alert('Error: ' + error.message);
-    });
 }
 
-// Audit Logs
-function loadAuditLogs() {
-    apiCall('/audit/logs', 'GET', null, function(err, data) {
-        if (err) {
-            console.error('Error loading audit logs:', err);
-            return;
-        }
-
-        var tbody = document.getElementById('auditTableBody');
-        tbody.innerHTML = '';
-
-        data.logs.forEach(function(log) {
-            tbody.innerHTML += '<tr>' +
-                '<td>' + log.created_at + '</td>' +
-                '<td>' + (log.user_name || 'Sistema') + '</td>' +
-                '<td><span class="badge bg-info">' + log.action + '</span></td>' +
-                '<td>' + log.model + '</td>' +
-                '<td><small>' + log.ip_address + '</small></td>' +
-            '</tr>';
-        });
-    });
+function viewPayment(id) {
+    const payment = payments.find(p => p.id === id);
+    if (payment) {
+        const apt = apartments.find(a => a.id === payment.apartmentId);
+        alert(`Detalles del Pago:\n\nApartamento: ${apt?.number}\nMonto: $${payment.amount.toLocaleString()}\nFecha: ${new Date(payment.date).toLocaleDateString()}\nConcepto: ${payment.concept}\nMétodo: ${payment.method}\nReferencia: ${payment.reference}`);
+    }
 }
 
-// Backups
-function performBackup() {
-    if (!confirm('¿Realizar backup ahora?')) return;
-    
-    apiCall('/audit/backup/perform', 'POST', {}, function(err, data) {
-        if (err) {
-            alert('Error: ' + err.message);
-            return;
-        }
-        
-        alert('Backup realizado: ' + data.backup.fileName);
-        loadBackupsList();
-    });
+function viewExpense(id) {
+    const expense = expenses.find(e => e.id === id);
+    if (expense) {
+        alert(`Detalles del Gasto:\n\nCategoría: ${expense.category}\nMonto: $${expense.amount.toLocaleString()}\nFecha: ${new Date(expense.date).toLocaleDateString()}\nDescripción: ${expense.description}\nProveedor: ${expense.provider}`);
+    }
 }
 
-function loadBackupsList() {
-    apiCall('/audit/backup/list', 'GET', null, function(err, data) {
-        if (err) {
-            console.error('Error loading backups:', err);
-            alert('Error al cargar backups');
-            return;
-        }
-
-        var backupsList = '<div class="alert alert-info"><strong>Backups Disponibles:</strong><br>';
-        data.backups.forEach(function(backup) {
-            backupsList += backup.fileName + ' (' + backup.sizeKB + ' KB) - ' + 
-                          new Date(backup.modified).toLocaleString('es-CO') + '<br>';
-        });
-        backupsList += '</div>';
-        
-        alert(backupsList);
-    });
+function deleteApartment(id) {
+    if (confirm('¿Está seguro de eliminar este apartamento?')) {
+        apartments = apartments.filter(a => a.id !== id);
+        saveData();
+        loadApartments();
+        alert('Apartamento eliminado');
+    }
 }
 
-function exportExpensesCSV() {
-    console.log('Exporting expenses to CSV...');
-    window.location.href = '/api/reports/expenses/csv';
+function deletePayment(id) {
+    if (confirm('¿Está seguro de eliminar este pago?')) {
+        payments = payments.filter(p => p.id !== id);
+        saveData();
+        loadPayments();
+        updateDashboard();
+        alert('Pago eliminado');
+    }
 }
->>>>>>> 1c44c1f2ef04d7587f963cce682ae1a54d28fd20
+
+function deleteExpense(id) {
+    if (confirm('¿Está seguro de eliminar este gasto?')) {
+        expenses = expenses.filter(e => e.id !== id);
+        saveData();
+        loadExpenses();
+        updateDashboard();
+        alert('Gasto eliminado');
+    }
+}

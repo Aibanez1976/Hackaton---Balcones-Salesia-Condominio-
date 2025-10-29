@@ -9,330 +9,199 @@
     <link href="css/style.css" rel="stylesheet">
 </head>
 <body>
-    <div id="app">
-        <!-- Login Screen -->
-        <div id="loginScreen" class="login-container">
-            <div class="login-box">
-                <div class="text-center mb-4">
-                    <h1 class="brand-title">
-                        <i class="fas fa-building"></i> SalesiaAdmin Pro
-                    </h1>
-                    <p class="text-muted">Gestión de Propiedad Horizontal</p>
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal show d-block" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="fas fa-lock"></i> Acceso al Sistema</h5>
                 </div>
-                <form id="loginForm">
-                    <div class="mb-3">
-                         <label for="email" class="form-label">Email</label>
-                         <input type="email" class="form-control" id="email" placeholder="admin@salesia.com" value="admin@salesia.com" required>
-                     </div>
-                     <div class="mb-3">
-                         <label for="password" class="form-label">Contraseña</label>
-                         <input type="password" class="form-control" id="password" placeholder="••••••••" value="Admin123!" required>
-                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Ingresar</button>
-                </form>
-                <div class="mt-3 text-center text-muted small">
-                    <p><strong>Demo Credentials:</strong></p>
-                    <p>Admin: admin@salesia.com / Admin123!</p>
-                    <p>Contador: contador@salesia.com / Contador123!</p>
-                    <p>Consulta: consulta@salesia.com / Consulta123!</p>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Correo Electrónico</label>
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="password" required>
+                        </div>
+                        <div id="loginError" class="alert alert-danger d-none"></div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                        </button>
+                    </form>
+                    <hr>
+                    <div class="text-center">
+                        <small class="text-muted">Credenciales de prueba:</small><br>
+                        <small><strong>Admin:</strong> admin@salesia.com / Admin123!</small><br>
+                        <small><strong>Contador:</strong> contador@salesia.com / Contador123!</small><br>
+                        <small><strong>Consulta:</strong> consulta@salesia.com / Consulta123!</small>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Main App -->
-        <div id="mainApp" style="display: none;">
-            <!-- Navbar -->
-            <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-                <div class="container-fluid">
-                    <a class="navbar-brand" href="#dashboard">
-                        <i class="fas fa-building"></i> SalesiaAdmin Pro
-                    </a>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse" id="navbarNav">
-                        <ul class="navbar-nav ms-auto">
-                            <li class="nav-item">
-                                <a class="nav-link" href="#dashboard" onclick="showDashboard()">
-                                    <i class="fas fa-chart-line"></i> Dashboard
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#apartments" onclick="showApartments()">
-                                    <i class="fas fa-door-open"></i> Apartamentos
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#portfolio" onclick="showPortfolio()">
-                                    <i class="fas fa-wallet"></i> Cartera
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#payments" onclick="showPayments()">
-                                    <i class="fas fa-money-bill"></i> Pagos
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#expenses" onclick="showExpenses()">
-                                    <i class="fas fa-receipt"></i> Gastos
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#reports" onclick="showReports()">
-                                    <i class="fas fa-file-pdf"></i> Reportes
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#reconciliation" onclick="showReconciliation()">
-                                    <i class="fas fa-balance-scale"></i> Conciliación
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#audit" onclick="showAudit()">
-                                    <i class="fas fa-history"></i> Auditoría
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#" onclick="logout()">
-                                    <i class="fas fa-sign-out-alt"></i> Salir
-                                </a>
-                            </li>
-                        </ul>
+    <!-- Main App -->
+    <div id="app" class="d-none">
+        <!-- Navigation -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">
+                    <i class="fas fa-building"></i> SalesiaAdmin Pro
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" onclick="showSection('dashboard')">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" onclick="showSection('apartments')">
+                                <i class="fas fa-home"></i> Apartamentos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" onclick="showSection('payments')">
+                                <i class="fas fa-money-bill-wave"></i> Pagos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" onclick="showSection('expenses')">
+                                <i class="fas fa-credit-card"></i> Gastos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" onclick="showSection('portfolio')">
+                                <i class="fas fa-chart-line"></i> Cartera
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" onclick="showSection('reports')">
+                                <i class="fas fa-file-alt"></i> Reportes
+                            </a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user"></i> <span id="userName"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" onclick="logout()">
+                                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                                </a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="container-fluid mt-4">
+            <!-- Dashboard -->
+            <div id="dashboard-section" class="section">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h2><i class="fas fa-tachometer-alt"></i> Dashboard Ejecutivo</h2>
+                        <hr>
                     </div>
                 </div>
-            </nav>
-
-            <!-- Content Area -->
-            <div class="container-fluid mt-4">
-                <!-- Dashboard -->
-                <div id="dashboardView" class="view-section">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h2 class="mb-0"><i class="fas fa-chart-line"></i> Dashboard</h2>
-                        <div class="btn-group" role="group">
-                            <button type="button" class="btn btn-success btn-sm" onclick="exportDashboardPDF()">
-                                <i class="fas fa-file-pdf"></i> Exportar PDF
-                            </button>
-                            <button type="button" class="btn btn-info btn-sm" onclick="exportDashboardCSV()">
-                                <i class="fas fa-file-csv"></i> Exportar CSV
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="row mb-4">
-                        <div class="col-md-3">
-                            <div class="card stat-card">
-                                <div class="card-body">
-                                    <h6 class="card-title text-muted">Total Apartamentos</h6>
-                                    <h3 id="totalApartments">-</h3>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card stat-card">
-                                <div class="card-body">
-                                    <h6 class="card-title text-muted">Cartera Total</h6>
-                                    <h3 id="totalPortfolio">-</h3>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card stat-card">
-                                <div class="card-body">
-                                    <h6 class="card-title text-muted">Pagos (6 meses)</h6>
-                                    <h3 id="totalPayments">-</h3>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card stat-card">
-                                <div class="card-body">
-                                    <h6 class="card-title text-muted">Gastos (6 meses)</h6>
-                                    <h3 id="totalExpenses">-</h3>
-                                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-home"></i> Apartamentos</h5>
+                                <h3 id="totalApartments">13</h3>
                             </div>
                         </div>
                     </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="mb-0">Cartera por Antigüedad</h5>
-                                </div>
-                                <div class="card-body">
-                                    <canvas id="portfolioChart"></canvas>
-                                </div>
+                    <div class="col-md-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-dollar-sign"></i> Cartera Total</h5>
+                                <h3 id="totalPortfolio">$2,700,000</h3>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="mb-0">Gastos por Categoría</h5>
-                                </div>
-                                <div class="card-body">
-                                    <canvas id="expensesChart"></canvas>
-                                </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-info text-white">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-arrow-up"></i> Pagos (6 meses)</h5>
+                                <h3 id="totalPayments">$2,340,000</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-warning text-white">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-arrow-down"></i> Gastos (6 meses)</h5>
+                                <h3 id="totalExpenses">$360,000</h3>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Apartments -->
-                <div id="apartmentsView" class="view-section" style="display: none;">
-                    <h2 class="mb-4"><i class="fas fa-door-open"></i> Gestión de Apartamentos</h2>
-                    <div class="table-responsive">
-                        <table class="table table-striped" id="apartmentsTable">
-                            <thead>
-                                <tr>
-                                    <th>Apartamento</th>
-                                    <th>Torre</th>
-                                    <th>Área</th>
-                                    <th>Cuota Mensual</th>
-                                    <th>Propietarios</th>
-                                    <th>Residentes</th>
-                                    <th>Mascotas</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="apartmentsTableBody">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Portfolio -->
-                <div id="portfolioView" class="view-section" style="display: none;">
-                    <h2 class="mb-4"><i class="fas fa-wallet"></i> Gestión de Cartera</h2>
-                    <div class="table-responsive">
-                        <table class="table table-striped" id="portfolioTable">
-                            <thead>
-                                <tr>
-                                    <th>Apartamento</th>
-                                    <th>Cuota Mensual</th>
-                                    <th>Pagado (6m)</th>
-                                    <th>Saldo Adeudado</th>
-                                    <th>% Pago</th>
-                                    <th>Último Pago</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="portfolioTableBody">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Payments -->
-                <div id="paymentsView" class="view-section" style="display: none;">
-                    <h2 class="mb-4"><i class="fas fa-money-bill"></i> Registro de Pagos</h2>
-                    <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#paymentModal">
-                        <i class="fas fa-plus"></i> Nuevo Pago
-                    </button>
-                    <div class="table-responsive">
-                        <table class="table table-striped" id="paymentsTable">
-                            <thead>
-                                <tr>
-                                    <th>Apartamento</th>
-                                    <th>Monto</th>
-                                    <th>Fecha</th>
-                                    <th>Concepto</th>
-                                    <th>Método</th>
-                                    <th>Referencia</th>
-                                </tr>
-                            </thead>
-                            <tbody id="paymentsTableBody">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Expenses -->
-                <div id="expensesView" class="view-section" style="display: none;">
-                    <h2 class="mb-4"><i class="fas fa-receipt"></i> Registro de Gastos</h2>
-                    <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#expenseModal">
-                        <i class="fas fa-plus"></i> Nuevo Gasto
-                    </button>
-                    <div class="table-responsive">
-                        <table class="table table-striped" id="expensesTable">
-                            <thead>
-                                <tr>
-                                    <th>Categoría</th>
-                                    <th>Monto</th>
-                                    <th>Fecha</th>
-                                    <th>Descripción</th>
-                                    <th>Proveedor</th>
-                                </tr>
-                            </thead>
-                            <tbody id="expensesTableBody">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Reports -->
-                <div id="reportsView" class="view-section" style="display: none;">
-                    <h2 class="mb-4"><i class="fas fa-file-pdf"></i> Reportes</h2>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">Cartera por Antigüedad</h5>
-                                    <p class="card-text">Reporte detallado de cartera vencida por rangos de antigüedad</p>
-                                    <a href="/api/reports/portfolio-age/pdf" class="btn btn-primary" target="_blank">
-                                        <i class="fas fa-download"></i> Descargar PDF
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">Flujo de Caja</h5>
-                                    <p class="card-text">Análisis de ingresos y egresos mensuales</p>
-                                    <a href="/api/reports/cash-flow/pdf" class="btn btn-primary" target="_blank">
-                                        <i class="fas fa-download"></i> Descargar PDF
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">Top Morosos</h5>
-                                    <p class="card-text">Ranking de deudores con mayor antigüedad</p>
-                                    <div class="btn-group" role="group">
-                                        <a href="/api/reports/top-delinquents/pdf" class="btn btn-primary btn-sm" target="_blank">
-                                            <i class="fas fa-file-pdf"></i> PDF
-                                        </a>
-                                        <a href="/api/reports/top-delinquents/csv" class="btn btn-info btn-sm" target="_blank">
-                                            <i class="fas fa-file-csv"></i> CSV
-                                        </a>
-                                        <button class="btn btn-secondary btn-sm" onclick="loadTopDelinquents()">
-                                            <i class="fas fa-eye"></i> Ver
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="topDelinquentsContainer" style="display: none; margin-top: 20px;">
+                <div class="row mt-4">
+                    <div class="col-md-6">
                         <div class="card">
                             <div class="card-header">
-                                <h5 class="mb-0">Top Morosos - Detalle</h5>
+                                <h5><i class="fas fa-chart-pie"></i> Cartera por Antigüedad</h5>
                             </div>
                             <div class="card-body">
+                                <canvas id="portfolioChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-chart-bar"></i> Gastos por Categoría</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="expensesChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Apartments -->
+            <div id="apartments-section" class="section d-none">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h2><i class="fas fa-home"></i> Gestión de Apartamentos</h2>
+                            <button class="btn btn-primary" onclick="showApartmentModal()">
+                                <i class="fas fa-plus"></i> Nuevo Apartamento
+                            </button>
+                        </div>
+                        <hr>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-body">
                                 <div class="table-responsive">
-                                    <table class="table table-striped" id="topDelinquentsTable">
+                                    <table class="table table-striped" id="apartmentsTable">
                                         <thead>
                                             <tr>
-                                                <th>Apartamento</th>
+                                                <th>Número</th>
+                                                <th>Torre</th>
+                                                <th>Área (m²)</th>
+                                                <th>Cuota Mensual</th>
                                                 <th>Propietario</th>
-                                                <th>Teléfono</th>
-                                                <th>Deuda</th>
-                                                <th>Antigüedad</th>
+                                                <th>Acciones</th>
                                             </tr>
                                         </thead>
-                                        <tbody id="topDelinquentsBody">
+                                        <tbody id="apartmentsTableBody">
+                                            <!-- Data will be loaded here -->
                                         </tbody>
                                     </table>
                                 </div>
@@ -340,119 +209,162 @@
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Reconciliation -->
-                <div id="reconciliationView" class="view-section" style="display: none;">
-                    <h2 class="mb-4"><i class="fas fa-balance-scale"></i> Conciliación Bancaria</h2>
-                    <div class="row mb-4">
-                        <div class="col-md-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="mb-0">Importar Archivo Bancario</h5>
-                                </div>
-                                <div class="card-body">
-                                    <form id="reconciliationForm">
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                <div class="mb-3">
-                                                    <label for="reconciliationDate" class="form-label">Fecha de Conciliación</label>
-                                                    <input type="date" class="form-control" id="reconciliationDate" required>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <div class="mb-3">
-                                                    <label for="bankBalance" class="form-label">Balance Bancario</label>
-                                                    <input type="number" class="form-control" id="bankBalance" step="0.01" required>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <div class="mb-3">
-                                                    <label for="bankFile" class="form-label">Archivo CSV</label>
-                                                    <input type="file" class="form-control" id="bankFile" accept=".csv" required>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <button type="submit" class="btn btn-primary">
-                                            <i class="fas fa-upload"></i> Procesar Conciliación
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
+            <!-- Payments -->
+            <div id="payments-section" class="section d-none">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h2><i class="fas fa-money-bill-wave"></i> Registro de Pagos</h2>
+                            <button class="btn btn-success" onclick="showPaymentModal()">
+                                <i class="fas fa-plus"></i> Nuevo Pago
+                            </button>
                         </div>
+                        <hr>
                     </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="mb-0">Historial de Conciliaciones</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="table-responsive">
-                                        <table class="table table-striped" id="reconciliationTable">
-                                            <thead>
-                                                <tr>
-                                                    <th>Fecha</th>
-                                                    <th>Balance Bancario</th>
-                                                    <th>Balance Sistema</th>
-                                                    <th>Diferencia</th>
-                                                    <th>Estado</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="reconciliationTableBody">
-                                            </tbody>
-                                        </table>
-                                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped" id="paymentsTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Apartamento</th>
+                                                <th>Monto</th>
+                                                <th>Fecha</th>
+                                                <th>Concepto</th>
+                                                <th>Método</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="paymentsTableBody">
+                                            <!-- Data will be loaded here -->
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Audit -->
-                <div id="auditView" class="view-section" style="display: none;">
-                    <h2 class="mb-4"><i class="fas fa-history"></i> Bitácora de Auditoría</h2>
-                    <div class="row mb-4">
-                        <div class="col-md-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="mb-0">Gestión de Backups</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="btn-group" role="group">
-                                        <button class="btn btn-success" onclick="performBackup()">
-                                            <i class="fas fa-save"></i> Realizar Backup
-                                        </button>
-                                        <button class="btn btn-info" onclick="loadBackupsList()">
-                                            <i class="fas fa-list"></i> Ver Backups
-                                        </button>
-                                    </div>
+            <!-- Expenses -->
+            <div id="expenses-section" class="section d-none">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h2><i class="fas fa-credit-card"></i> Gestión de Gastos</h2>
+                            <button class="btn btn-warning" onclick="showExpenseModal()">
+                                <i class="fas fa-plus"></i> Nuevo Gasto
+                            </button>
+                        </div>
+                        <hr>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped" id="expensesTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Categoría</th>
+                                                <th>Monto</th>
+                                                <th>Fecha</th>
+                                                <th>Descripción</th>
+                                                <th>Proveedor</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="expensesTableBody">
+                                            <!-- Data will be loaded here -->
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="mb-0">Registro de Cambios</h5>
+                </div>
+            </div>
+
+            <!-- Portfolio -->
+            <div id="portfolio-section" class="section d-none">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h2><i class="fas fa-chart-line"></i> Estado de Cartera</h2>
+                        <hr>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped" id="portfolioTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Apartamento</th>
+                                                <th>Propietario</th>
+                                                <th>Saldo Actual</th>
+                                                <th>Último Pago</th>
+                                                <th>% Pagado</th>
+                                                <th>Estado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="portfolioTableBody">
+                                            <!-- Data will be loaded here -->
+                                        </tbody>
+                                    </table>
                                 </div>
-                                <div class="card-body">
-                                    <div class="table-responsive">
-                                        <table class="table table-striped" id="auditTable">
-                                            <thead>
-                                                <tr>
-                                                    <th>Fecha</th>
-                                                    <th>Usuario</th>
-                                                    <th>Acción</th>
-                                                    <th>Modelo</th>
-                                                    <th>IP</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="auditTableBody">
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports -->
+            <div id="reports-section" class="section d-none">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h2><i class="fas fa-file-alt"></i> Reportes y Exportaciones</h2>
+                        <hr>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
+                                <h5>Reporte de Cartera</h5>
+                                <button class="btn btn-primary" onclick="generatePortfolioReport()">
+                                    <i class="fas fa-download"></i> Generar PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-balance-scale fa-3x text-success mb-3"></i>
+                                <h5>Flujo de Caja</h5>
+                                <button class="btn btn-success" onclick="generateCashFlowReport()">
+                                    <i class="fas fa-download"></i> Generar PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-users fa-3x text-warning mb-3"></i>
+                                <h5>Top Morosos</h5>
+                                <button class="btn btn-warning" onclick="generateTopDelinquentsReport()">
+                                    <i class="fas fa-download"></i> Generar PDF
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -462,43 +374,128 @@
     </div>
 
     <!-- Modals -->
+    <!-- Apartment Modal -->
+    <div class="modal fade" id="apartmentModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="apartmentModalTitle">Nuevo Apartamento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="apartmentForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Número</label>
+                                    <input type="text" class="form-control" id="apartmentNumber" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Torre</label>
+                                    <select class="form-control" id="apartmentTower" required>
+                                        <option value="Torre A">Torre A</option>
+                                        <option value="Torre B">Torre B</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Área (m²)</label>
+                                    <input type="number" class="form-control" id="apartmentArea" step="0.01" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Cuota Mensual</label>
+                                    <input type="number" class="form-control" id="apartmentFee" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nombre del Propietario</label>
+                            <input type="text" class="form-control" id="ownerName" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="ownerEmail">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Teléfono</label>
+                                    <input type="tel" class="form-control" id="ownerPhone">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="saveApartment()">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Payment Modal -->
     <div class="modal fade" id="paymentModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Registrar Pago</h5>
+                    <h5 class="modal-title">Nuevo Pago</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form id="paymentForm">
-                    <div class="modal-body">
+                <div class="modal-body">
+                    <form id="paymentForm">
                         <div class="mb-3">
-                            <label for="paymentApartment" class="form-label">Apartamento</label>
-                            <select class="form-control" id="paymentApartment" required></select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="paymentAmount" class="form-label">Monto</label>
-                            <input type="number" class="form-control" id="paymentAmount" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="paymentDate" class="form-label">Fecha</label>
-                            <input type="date" class="form-control" id="paymentDate" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="paymentMethod" class="form-label">Método de Pago</label>
-                            <select class="form-control" id="paymentMethod" required>
-                                <option value="1">Efectivo</option>
-                                <option value="2">Transferencia</option>
-                                <option value="3">Cheque</option>
-                                <option value="4">Tarjeta</option>
+                            <label class="form-label">Apartamento</label>
+                            <select class="form-control" id="paymentApartment" required>
+                                <!-- Options will be loaded dynamically -->
                             </select>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Guardar Pago</button>
-                    </div>
-                </form>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Monto</label>
+                                    <input type="number" class="form-control" id="paymentAmount" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Fecha</label>
+                                    <input type="date" class="form-control" id="paymentDate" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Concepto</label>
+                            <input type="text" class="form-control" id="paymentConcept" value="Cuota ordinaria" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Método de Pago</label>
+                            <select class="form-control" id="paymentMethod" required>
+                                <option value="Efectivo">Efectivo</option>
+                                <option value="Transferencia">Transferencia</option>
+                                <option value="Cheque">Cheque</option>
+                                <option value="Tarjeta">Tarjeta</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Referencia</label>
+                            <input type="text" class="form-control" id="paymentReference">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="savePayment()">Guardar</button>
+                </div>
             </div>
         </div>
     </div>
@@ -508,43 +505,56 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Registrar Gasto</h5>
+                    <h5 class="modal-title">Nuevo Gasto</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form id="expenseForm">
-                    <div class="modal-body">
+                <div class="modal-body">
+                    <form id="expenseForm">
                         <div class="mb-3">
-                            <label for="expenseCategory" class="form-label">Categoría</label>
-                            <select class="form-control" id="expenseCategory" required></select>
+                            <label class="form-label">Categoría</label>
+                            <select class="form-control" id="expenseCategory" required>
+                                <option value="Servicios">Servicios</option>
+                                <option value="Seguridad">Seguridad</option>
+                                <option value="Limpieza">Limpieza</option>
+                                <option value="Reparaciones">Reparaciones</option>
+                                <option value="Administración">Administración</option>
+                                <option value="Seguros">Seguros</option>
+                            </select>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Monto</label>
+                                    <input type="number" class="form-control" id="expenseAmount" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Fecha</label>
+                                    <input type="date" class="form-control" id="expenseDate" required>
+                                </div>
+                            </div>
                         </div>
                         <div class="mb-3">
-                            <label for="expenseAmount" class="form-label">Monto</label>
-                            <input type="number" class="form-control" id="expenseAmount" required>
+                            <label class="form-label">Descripción</label>
+                            <input type="text" class="form-control" id="expenseDescription" required>
                         </div>
                         <div class="mb-3">
-                            <label for="expenseDate" class="form-label">Fecha</label>
-                            <input type="date" class="form-control" id="expenseDate" required>
+                            <label class="form-label">Proveedor</label>
+                            <input type="text" class="form-control" id="expenseProvider" required>
                         </div>
-                        <div class="mb-3">
-                            <label for="expenseDescription" class="form-label">Descripción</label>
-                            <input type="text" class="form-control" id="expenseDescription">
-                        </div>
-                        <div class="mb-3">
-                            <label for="expenseProvider" class="form-label">Proveedor</label>
-                            <input type="text" class="form-control" id="expenseProvider">
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Guardar Gasto</button>
-                    </div>
-                </form>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="saveExpense()">Guardar</button>
+                </div>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>
