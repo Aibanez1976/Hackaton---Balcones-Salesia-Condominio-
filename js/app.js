@@ -14,10 +14,13 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeApp() {
+    console.log('🚀 Initializing SalesiaAdmin Pro...');
     loadData();
     setupEventListeners();
+    console.log('📊 Showing initial dashboard...');
     showSection('dashboard');
     updateDashboard();
+    console.log('✅ App initialization complete');
 }
 
 // Setup event listeners
@@ -197,37 +200,55 @@ function loadAllData() {
 
 // Navigation
 function showSection(sectionName) {
-    console.log('Showing section:', sectionName);
+    console.log('=== SHOWING SECTION:', sectionName, '===');
 
-    // Hide all sections
-    document.querySelectorAll('.section').forEach(section => {
+    // First, hide ALL sections
+    const allSections = document.querySelectorAll('.section');
+    console.log('Found', allSections.length, 'sections to hide');
+    allSections.forEach(section => {
         section.classList.add('d-none');
+        console.log('Hidden section:', section.id);
     });
 
-    // Show selected section
-    const targetSection = document.getElementById(sectionName + '-section');
+    // Show the target section
+    const targetSectionId = sectionName + '-section';
+    const targetSection = document.getElementById(targetSectionId);
+
     if (targetSection) {
         targetSection.classList.remove('d-none');
-        console.log('Section shown successfully:', sectionName);
+        console.log('✅ SUCCESS: Section', targetSectionId, 'is now visible');
 
         // Special handling for specific sections
         if (sectionName === 'history') {
+            console.log('Loading history apartments...');
             loadHistoryApartments();
         } else if (sectionName === 'settings') {
+            console.log('Updating settings counters...');
             updateSettingsCounters();
         }
     } else {
-        console.error('Section not found:', sectionName + '-section');
+        console.error('❌ ERROR: Section not found:', targetSectionId);
+        // List all available sections for debugging
+        const availableSections = document.querySelectorAll('[id$="-section"]');
+        console.log('Available sections:', Array.from(availableSections).map(s => s.id));
     }
 
-    // Update active nav link
+    // Update navigation active state
     document.querySelectorAll('.nav-link').forEach(link => {
         link.classList.remove('active');
     });
-    const activeLink = document.querySelector(`[onclick="showSection('${sectionName}')"]`);
-    if (activeLink) {
-        activeLink.classList.add('active');
+
+    // Find and activate the correct nav link
+    const navLinks = document.querySelectorAll('.nav-link');
+    for (let link of navLinks) {
+        if (link.getAttribute('onclick') === `showSection('${sectionName}')`) {
+            link.classList.add('active');
+            console.log('✅ Navigation link activated for:', sectionName);
+            break;
+        }
     }
+
+    console.log('=== SECTION CHANGE COMPLETE ===');
 }
 
 // Dashboard functions
