@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Dependencies
 # node_modules/
 # package-lock.json
@@ -54,3 +55,13 @@ build/
 tmp/
 temp/
 *.tmp
+=======
+node_modules/
+data/
+.env
+.env.local
+*.log
+.DS_Store
+dist/
+build/
+>>>>>>> 1c44c1f2ef04d7587f963cce682ae1a54d28fd20
